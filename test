@@ -1,0 +1,21 @@
+Variable
+    $billing Real 0
+    $name Text "User"
+    $trans Integer 0
+
+State Welcome
+    Speak "Greetings, " + $name
+    Speak "Please input Balance to check your balance, input Change Name to have your name changed, input Complain to complain and Exit to close the dialogue"
+    Case Contain "Balance"
+        Goto Billing
+    Case Contain "Change Name"
+        Goto Rename
+    Case "Complain"
+        Goto Complain
+    Case "Exit"
+        Exit
+    Default
+    Timeout 60
+        Speak "Waiting timeout, the dialogue will be terminated soon..."
+    Timeout 90
+        Exit
