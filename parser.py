@@ -95,7 +95,7 @@ class Parser:
             
     def p_expression(self, p):
         '''
-        expression : cases
+        expression : switch
                     | speak
                     | goto
                     | timeout
@@ -104,13 +104,18 @@ class Parser:
         '''
         p[0] = p[1]
     
+    def p_switch(self, p):
+        '''
+        switch : SWITCH cases
+        '''
+        p[0] = Node('switch', *p[2])
     def p_cases(self, p):
         '''
         cases : case
                 | cases case
         '''
         if len(p) == 2:
-            p[0] = Node('cases', p[1])
+            p[0] = [p[1]]
         else:
             p[0] = p[1] + [p[2]]
             
@@ -187,10 +192,11 @@ if __name__ == '__main__':
         z text "hello"
     
     state start
-        case "hello" speak "hello"
-        case "bye" speak "bye"
-        case "exit" exit
-        default speak "default"
+        switch
+            case "hello" speak "hello"
+            case "bye" speak "bye"
+            case "exit" exit
+            default speak "default"
     state end
         timeout $10 goto start
     ''')

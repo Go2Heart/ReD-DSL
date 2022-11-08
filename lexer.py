@@ -10,6 +10,7 @@ class Lexer:
         "text": "TEXT",
         "variable": "VARIABLE",
         "state": "STATE",
+        "switch": "SWITCH",
         "case": "CASE",
         "goto": "GOTO",
         "default": "DEFAULT",
