@@ -15,7 +15,7 @@ State Welcome
     Case "Exit"
         Exit
     Default
-    Timeout 60
+        Timeout 60
         Speak "Waiting timeout, the dialogue will be terminated soon..."
     Timeout 90
         Exit
