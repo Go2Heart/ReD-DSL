@@ -42,7 +42,7 @@ class Parser:
         '''
         variables : VARIABLE vars
         '''
-        p[0] = Node('variables', *p[2].child)
+        p[0] = Node(('variables'), *p[2].child)
     def p_vars(self, p):
         '''
         vars : var
@@ -57,7 +57,7 @@ class Parser:
         '''
         var : ID REAL VAR
                 | ID INTEGER VAR
-                | ID TEXT VAR
+                | ID TEXT STR
         '''
         p[0] = Node('var', p[1], p[2], p[3])
     
@@ -135,7 +135,7 @@ class Parser:
         term : STR
                 | VAR
         '''
-        if(p[1].startswith('"')):
+        if(p[1].type == 'STR'):
             p[0] = Node('str', p[1])
         else:
             p[0] = Node('var', p[1])
@@ -175,18 +175,18 @@ if __name__ == '__main__':
     parser = Parser(lexer)
     parser.parse('''
     script test
-    variables
+    variable
         x real $100
-        y int $100
-        z str $"hello"
-    states
-        state start
-            case "hello" speak "hello"
-            case "bye" speak "bye"
-            case "exit" exit
-            default speak "default"
-        state end
-            timeout $10 goto start
+        y integer $100
+        z text "hello"
+    
+    state start
+        case "hello" speak "hello"
+        case "bye" speak "bye"
+        case "exit" exit
+        default speak "default"
+    state end
+        timeout $10 goto start
     ''')
         
     

@@ -109,20 +109,21 @@ class Lexer:
 if __name__ == "__main__":
     lexer = Lexer()
     #lexer.load_str("test variable test $123 \"123\"")
-    lexer.load_str('''
+    lexer.load_str(
+    '''
     script test
-    variables
+    variable
         x real $100
-        y int $100
-        z str $"hello"
-    states
-        state start
-            case "hello" speak "hello"
-            case "bye" speak "bye"
-            case "exit" exit
-            default speak "default"
-        state end
-            timeout $10 goto start
+        y integer $100
+        z text $"hello"
+    
+    state start
+        case "hello" speak "hello"
+        case "bye" speak "bye"
+        case "exit" exit
+        default speak "default"
+    state end
+        timeout $10 goto start
     ''')
     token = lexer.token()
     while token:

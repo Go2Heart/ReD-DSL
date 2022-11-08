@@ -9,7 +9,7 @@ Rule 3     vars -> var
 Rule 4     vars -> vars var
 Rule 5     var -> ID REAL VAR
 Rule 6     var -> ID INTEGER VAR
-Rule 7     var -> ID TEXT VAR
+Rule 7     var -> ID TEXT STR
 Rule 8     states -> state
 Rule 9     states -> states state
 Rule 10    state -> STATE ID expressions
@@ -46,10 +46,10 @@ REAL                 : 5
 SCRIPT               : 1
 SPEAK                : 22
 STATE                : 10
-STR                  : 21 25
+STR                  : 7 21 25
 TEXT                 : 7
 TIMEOUT              : 28
-VAR                  : 5 6 7 26 28
+VAR                  : 5 6 26 28
 VARIABLE             : 2
 error                : 
 
@@ -125,7 +125,7 @@ state 5
     (4) vars -> . vars var
     (5) var -> . ID REAL VAR
     (6) var -> . ID INTEGER VAR
-    (7) var -> . ID TEXT VAR
+    (7) var -> . ID TEXT STR
 
     ID              shift and go to state 11
 
@@ -164,7 +164,7 @@ state 9
     (4) vars -> vars . var
     (5) var -> . ID REAL VAR
     (6) var -> . ID INTEGER VAR
-    (7) var -> . ID TEXT VAR
+    (7) var -> . ID TEXT STR
 
     STATE           reduce using rule 2 (variables -> VARIABLE vars .)
     ID              shift and go to state 11
@@ -183,7 +183,7 @@ state 11
 
     (5) var -> ID . REAL VAR
     (6) var -> ID . INTEGER VAR
-    (7) var -> ID . TEXT VAR
+    (7) var -> ID . TEXT STR
 
     REAL            shift and go to state 15
     INTEGER         shift and go to state 16
@@ -259,9 +259,9 @@ state 16
 
 state 17
 
-    (7) var -> ID TEXT . VAR
+    (7) var -> ID TEXT . STR
 
-    VAR             shift and go to state 35
+    STR             shift and go to state 35
 
 
 state 18
@@ -523,10 +523,10 @@ state 34
 
 state 35
 
-    (7) var -> ID TEXT VAR .
+    (7) var -> ID TEXT STR .
 
-    ID              reduce using rule 7 (var -> ID TEXT VAR .)
-    STATE           reduce using rule 7 (var -> ID TEXT VAR .)
+    ID              reduce using rule 7 (var -> ID TEXT STR .)
+    STATE           reduce using rule 7 (var -> ID TEXT STR .)
 
 
 state 36
