@@ -16,7 +16,13 @@ class Node:
         """
         print(' ' * indent, self.type)
         for child in self.childs:
-            child.print(indent + 1)
+            if isinstance(child, str):
+                print(' ' * (indent+1), "str: ",child)
+            elif isinstance(child, list):
+                for c in child:
+                    c.print(indent + 1)
+            else:
+                child.print(indent + 1)
         
 class Parser:
     def __init__(self, lexer:Lexer): #TODO add config
@@ -36,13 +42,13 @@ class Parser:
         '''
         script : SCRIPT ID variables states
         '''
-        p[0] = Node('script', p[2], p[3], *p[4].child)
+        p[0] = Node('script', p[2], p[3], *p[4])
     
     def p_variables(self, p):
         '''
         variables : VARIABLE vars
         '''
-        p[0] = Node(('variables'), *p[2].child)
+        p[0] = Node(('variables'), *p[2])
     def p_vars(self, p):
         '''
         vars : var
@@ -75,7 +81,7 @@ class Parser:
         '''
         state : STATE ID expressions
         '''
-        p[0] = Node('state', p[2], *p[3].child) # where p[3] is a list of expression AST Nodes.
+        p[0] = Node('state', p[2], *p[3]) # where p[3] is a list of expression AST Nodes.
         
     def p_expressions(self, p):
         '''
@@ -112,7 +118,7 @@ class Parser:
         '''
         case : CASE STR expressions 
         '''
-        p[0] = Node('case', p[2], *p[3].child)
+        p[0] = Node('case', p[2], *p[3])
         
     def p_speak(self, p):
         '''
@@ -135,7 +141,7 @@ class Parser:
         term : STR
                 | VAR
         '''
-        if(p[1].type == 'STR'):
+        if(p[1] == 'STR'):
             p[0] = Node('str', p[1])
         else:
             p[0] = Node('var', p[1])
@@ -149,13 +155,13 @@ class Parser:
         '''
         timeout : TIMEOUT VAR expressions
         '''
-        p[0] = Node('timeout', p[2], *p[3].child)
+        p[0] = Node('timeout', p[2], *p[3])
     
     def p_default(self, p):
         '''
         default : DEFAULT expressions
         '''
-        p[0] = Node('default', *p[2].child)
+        p[0] = Node('default', *p[2])
         
     def p_exit(self, p):
         '''
@@ -173,7 +179,7 @@ class Parser:
 if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser(lexer)
-    parser.parse('''
+    node = parser.parse('''
     script test
     variable
         x real $100
@@ -188,5 +194,5 @@ if __name__ == '__main__':
     state end
         timeout $10 goto start
     ''')
-        
+    node.print()
     
