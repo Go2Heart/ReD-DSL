@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'scriptCASE DEFAULT END EXIT GOTO ID INTEGER NEWLINE REAL SCRIPT SPEAK STATE STR SWITCH TEXT TIMEOUT VAR VARIABLE\n        script : SCRIPT ID variables NEWLINE states\n        \n        variables : NEWLINE VARIABLE vars END\n        \n        vars : var\n                | vars var\n        \n        var : NEWLINE ID REAL VAR\n                | NEWLINE ID INTEGER VAR\n                | NEWLINE ID TEXT STR\n        \n        states : state\n                | states state\n        \n        state : NEWLINE STATE ID expressions END\n        \n        expressions : expression\n                    | expressions expression\n        \n        expression : NEWLINE switch\n                    | NEWLINE speak\n                    | NEWLINE goto\n                    | NEWLINE timeout\n                    | NEWLINE exit\n        \n        switch : SWITCH cases NEWLINE default\n        \n        cases : case\n                | cases case\n        \n        case : NEWLINE CASE STR expressions \n        \n        speak : SPEAK terms\n        \n        terms : term\n                | terms term\n        \n        term : STR\n                | VAR\n        \n        goto : GOTO ID\n        \n        timeout : TIMEOUT VAR expressions\n        \n        default : DEFAULT expressions\n        \n        exit : EXIT\n        '
+_lr_signature = 'scriptCASE DEFAULT ENDSTATE ENDSWITCH ENDTIMEOUT ENDVARIABLE EXIT GOTO ID INTEGER REAL SCRIPT SPEAK STATE STR SWITCH TEXT TIMEOUT VAR VARIABLE\n        script : SCRIPT ID variables states\n        \n        variables : VARIABLE vars ENDVARIABLE\n        \n        vars : var\n                | vars var\n        \n        var : ID REAL VAR\n                | ID INTEGER VAR\n                | ID TEXT STR\n        \n        states : state\n                | states state\n        \n        state : STATE ID expressions ENDSTATE\n        \n        expressions : expression\n                    | expressions expression\n        \n        expression : switch\n                    | speak\n                    | goto\n                    | timeout\n                    | exit\n        \n        switch : SWITCH cases default\n        \n        cases : case\n                | cases case\n        \n        case : CASE STR expressions \n        \n        speak : SPEAK terms\n        \n        terms : term\n                | terms term\n        \n        term : STR\n        \n        term : VAR\n        \n        goto : GOTO ID\n        \n        timeout : TIMEOUT VAR expressions ENDTIMEOUT\n        \n        default : DEFAULT expressions ENDSWITCH\n        \n        exit : EXIT\n        '
     
-_lr_action_items = {'SCRIPT':([0,],[2,]),'$end':([1,9,10,15,39,],[0,-1,-8,-9,-10,]),'ID':([2,11,14,36,],[3,16,19,48,]),'NEWLINE':([3,4,6,7,9,10,12,13,15,17,18,19,24,25,26,27,28,29,30,31,32,33,34,38,39,40,41,43,44,45,46,47,48,49,51,53,54,55,56,57,58,59,],[5,6,8,11,8,-8,11,-3,-9,-2,-4,23,23,-11,-5,-6,-7,-13,-14,-15,-16,-17,42,-30,-10,-12,50,-19,-22,-23,-25,-26,-27,23,-20,-24,23,-18,23,23,23,23,]),'VARIABLE':([5,],[7,]),'STATE':([8,],[14,]),'END':([12,13,18,24,25,26,27,28,29,30,31,32,33,38,40,44,45,46,47,48,53,54,55,58,],[17,-3,-4,39,-11,-5,-6,-7,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,-24,-28,-18,-29,]),'REAL':([16,],[20,]),'INTEGER':([16,],[21,]),'TEXT':([16,],[22,]),'VAR':([20,21,35,37,44,45,46,47,53,],[26,27,47,49,47,-23,-25,-26,-24,]),'STR':([22,35,44,45,46,47,52,53,],[28,46,46,-23,-25,-26,57,-24,]),'SWITCH':([23,],[34,]),'SPEAK':([23,],[35,]),'GOTO':([23,],[36,]),'TIMEOUT':([23,],[37,]),'EXIT':([23,],[38,]),'CASE':([42,50,],[52,52,]),'DEFAULT':([50,],[56,]),}
+_lr_action_items = {'SCRIPT':([0,],[2,]),'$end':([1,6,7,12,34,],[0,-1,-8,-9,-10,]),'ID':([2,5,8,9,10,15,28,31,32,33,],[3,11,13,11,-3,-4,43,-5,-6,-7,]),'VARIABLE':([3,],[5,]),'STATE':([4,6,7,12,14,34,],[8,8,-8,-9,-2,-10,]),'ENDVARIABLE':([9,10,15,31,32,33,],[14,-3,-4,-5,-6,-7,]),'REAL':([11,],[16,]),'INTEGER':([11,],[17,]),'TEXT':([11,],[18,]),'SWITCH':([13,19,20,21,22,23,24,25,30,35,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54,],[26,26,-11,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,26,-18,26,26,-24,26,26,26,-28,-29,]),'SPEAK':([13,19,20,21,22,23,24,25,30,35,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54,],[27,27,-11,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,27,-18,27,27,-24,27,27,27,-28,-29,]),'GOTO':([13,19,20,21,22,23,24,25,30,35,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54,],[28,28,-11,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,28,-18,28,28,-24,28,28,28,-28,-29,]),'TIMEOUT':([13,19,20,21,22,23,24,25,30,35,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54,],[29,29,-11,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,29,-18,29,29,-24,29,29,29,-28,-29,]),'EXIT':([13,19,20,21,22,23,24,25,30,35,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54,],[30,30,-11,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,30,-18,30,30,-24,30,30,30,-28,-29,]),'VAR':([16,17,27,29,39,40,41,42,49,],[31,32,42,44,42,-23,-25,-26,-24,]),'STR':([18,27,38,39,40,41,42,49,],[33,41,48,41,-23,-25,-26,-24,]),'ENDSTATE':([19,20,21,22,23,24,25,30,35,39,40,41,42,43,45,49,53,54,],[34,-11,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,-18,-24,-28,-29,]),'ENDTIMEOUT':([20,21,22,23,24,25,30,35,39,40,41,42,43,45,49,50,53,54,],[-11,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,-18,-24,53,-28,-29,]),'ENDSWITCH':([20,21,22,23,24,25,30,35,39,40,41,42,43,45,49,51,53,54,],[-11,-13,-14,-15,-16,-17,-30,-12,-22,-23,-25,-26,-27,-18,-24,54,-28,-29,]),'DEFAULT':([20,21,22,23,24,25,30,35,36,37,39,40,41,42,43,45,46,49,52,53,54,],[-11,-13,-14,-15,-16,-17,-30,-12,47,-19,-22,-23,-25,-26,-27,-18,-20,-24,-21,-28,-29,]),'CASE':([20,21,22,23,24,25,26,30,35,36,37,39,40,41,42,43,45,46,49,52,53,54,],[-11,-13,-14,-15,-16,-17,38,-30,-12,38,-19,-22,-23,-25,-26,-27,-18,-20,-24,-21,-28,-29,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'script':([0,],[1,]),'variables':([3,],[4,]),'states':([6,],[9,]),'state':([6,9,],[10,15,]),'vars':([7,],[12,]),'var':([7,12,],[13,18,]),'expressions':([19,49,56,57,],[24,54,58,59,]),'expression':([19,24,49,54,56,57,58,59,],[25,40,25,40,25,25,40,40,]),'switch':([23,],[29,]),'speak':([23,],[30,]),'goto':([23,],[31,]),'timeout':([23,],[32,]),'exit':([23,],[33,]),'cases':([34,],[41,]),'case':([34,41,],[43,51,]),'terms':([35,],[44,]),'term':([35,44,],[45,53,]),'default':([50,],[55,]),}
+_lr_goto_items = {'script':([0,],[1,]),'variables':([3,],[4,]),'states':([4,],[6,]),'state':([4,6,],[7,12,]),'vars':([5,],[9,]),'var':([5,9,],[10,15,]),'expressions':([13,44,47,48,],[19,50,51,52,]),'expression':([13,19,44,47,48,50,51,52,],[20,35,20,20,20,35,35,35,]),'switch':([13,19,44,47,48,50,51,52,],[21,21,21,21,21,21,21,21,]),'speak':([13,19,44,47,48,50,51,52,],[22,22,22,22,22,22,22,22,]),'goto':([13,19,44,47,48,50,51,52,],[23,23,23,23,23,23,23,23,]),'timeout':([13,19,44,47,48,50,51,52,],[24,24,24,24,24,24,24,24,]),'exit':([13,19,44,47,48,50,51,52,],[25,25,25,25,25,25,25,25,]),'cases':([26,],[36,]),'case':([26,36,],[37,46,]),'terms':([27,],[39,]),'term':([27,39,],[40,49,]),'default':([36,],[45,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,34 +27,34 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> script","S'",1,None,None,None),
-  ('script -> SCRIPT ID variables NEWLINE states','script',5,'p_script','parser.py',46),
-  ('variables -> NEWLINE VARIABLE vars END','variables',4,'p_variables','parser.py',54),
+  ('script -> SCRIPT ID variables states','script',4,'p_script','parser.py',46),
+  ('variables -> VARIABLE vars ENDVARIABLE','variables',3,'p_variables','parser.py',54),
   ('vars -> var','vars',1,'p_vars','parser.py',61),
   ('vars -> vars var','vars',2,'p_vars','parser.py',62),
-  ('var -> NEWLINE ID REAL VAR','var',4,'p_var','parser.py',73),
-  ('var -> NEWLINE ID INTEGER VAR','var',4,'p_var','parser.py',74),
-  ('var -> NEWLINE ID TEXT STR','var',4,'p_var','parser.py',75),
+  ('var -> ID REAL VAR','var',3,'p_var','parser.py',73),
+  ('var -> ID INTEGER VAR','var',3,'p_var','parser.py',74),
+  ('var -> ID TEXT STR','var',3,'p_var','parser.py',75),
   ('states -> state','states',1,'p_states','parser.py',81),
   ('states -> states state','states',2,'p_states','parser.py',82),
-  ('state -> NEWLINE STATE ID expressions END','state',5,'p_state','parser.py',93),
+  ('state -> STATE ID expressions ENDSTATE','state',4,'p_state','parser.py',93),
   ('expressions -> expression','expressions',1,'p_expressions','parser.py',99),
   ('expressions -> expressions expression','expressions',2,'p_expressions','parser.py',100),
-  ('expression -> NEWLINE switch','expression',2,'p_expression','parser.py',109),
-  ('expression -> NEWLINE speak','expression',2,'p_expression','parser.py',110),
-  ('expression -> NEWLINE goto','expression',2,'p_expression','parser.py',111),
-  ('expression -> NEWLINE timeout','expression',2,'p_expression','parser.py',112),
-  ('expression -> NEWLINE exit','expression',2,'p_expression','parser.py',113),
-  ('switch -> SWITCH cases NEWLINE default','switch',4,'p_switch','parser.py',119),
+  ('expression -> switch','expression',1,'p_expression','parser.py',109),
+  ('expression -> speak','expression',1,'p_expression','parser.py',110),
+  ('expression -> goto','expression',1,'p_expression','parser.py',111),
+  ('expression -> timeout','expression',1,'p_expression','parser.py',112),
+  ('expression -> exit','expression',1,'p_expression','parser.py',113),
+  ('switch -> SWITCH cases default','switch',3,'p_switch','parser.py',119),
   ('cases -> case','cases',1,'p_cases','parser.py',124),
   ('cases -> cases case','cases',2,'p_cases','parser.py',125),
-  ('case -> NEWLINE CASE STR expressions','case',4,'p_case','parser.py',134),
+  ('case -> CASE STR expressions','case',3,'p_case','parser.py',134),
   ('speak -> SPEAK terms','speak',2,'p_speak','parser.py',140),
   ('terms -> term','terms',1,'p_terms','parser.py',146),
   ('terms -> terms term','terms',2,'p_terms','parser.py',147),
-  ('term -> STR','term',1,'p_term','parser.py',156),
-  ('term -> VAR','term',1,'p_term','parser.py',157),
-  ('goto -> GOTO ID','goto',2,'p_goto','parser.py',165),
-  ('timeout -> TIMEOUT VAR expressions','timeout',3,'p_timeout','parser.py',171),
-  ('default -> DEFAULT expressions','default',2,'p_default','parser.py',177),
-  ('exit -> EXIT','exit',1,'p_exit','parser.py',183),
+  ('term -> STR','term',1,'p_term_str','parser.py',156),
+  ('term -> VAR','term',1,'p_term_var','parser.py',162),
+  ('goto -> GOTO ID','goto',2,'p_goto','parser.py',168),
+  ('timeout -> TIMEOUT VAR expressions ENDTIMEOUT','timeout',4,'p_timeout','parser.py',174),
+  ('default -> DEFAULT expressions ENDSWITCH','default',3,'p_default','parser.py',180),
+  ('exit -> EXIT','exit',1,'p_exit','parser.py',186),
 ]

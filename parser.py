@@ -10,19 +10,19 @@ class Node:
         self.type = type
         self.childs = list(child)
     
-    def __str__(self) -> str:
-        return self.type
+    def __str__(self):
+        return str(self.type)
     def print(self, indent=0):
         """
             print the AST
         """
-        print(' ' * indent, self.type)
+        print('  ' * indent, self.type)
         for child in self.childs:
             if isinstance(child, str):
-                print(' ' * (indent+1), "str: ",child)
+                print('  ' * (indent+1), "str: ",child)
             elif isinstance(child, list):
-                for c in child:
-                    c.print(indent + 1)
+                 for c in child:
+                     c.print(indent + 1)
             else:
                 child.print(indent + 1)
         
@@ -43,17 +43,17 @@ class Parser:
     start = 'script'
     def p_script(self, p):
         '''
-        script : SCRIPT ID variables NEWLINE states
+        script : SCRIPT ID variables states
         '''
-        p[0] = Node(('script', p[2]), p[3], p[4+1])
+        p[0] = Node(('script', p[2]), p[3], p[4])
     
     
     
     def p_variables(self, p):
         '''
-        variables : NEWLINE VARIABLE vars END
+        variables : VARIABLE vars ENDVARIABLE
         '''
-        p[0] = Node(('variables'), *p[3])
+        p[0] = Node(('variables'), *p[2])
         if(self.debug):
             print("variables: ", p[0].childs)
     def p_vars(self, p):
@@ -70,11 +70,11 @@ class Parser:
     
     def p_var(self, p):
         '''
-        var : NEWLINE ID REAL VAR
-                | NEWLINE ID INTEGER VAR
-                | NEWLINE ID TEXT STR
+        var : ID REAL VAR
+                | ID INTEGER VAR
+                | ID TEXT STR
         '''
-        p[0] = Node('var', p[1+1], p[2+1], p[3+1])
+        p[0] = Node(('var', p[1]), p[2], p[3])
     
     def p_states(self, p):
         '''
@@ -86,13 +86,13 @@ class Parser:
             p[0] = Node('states', p[1])
         else:
             #p[0] = p[1] + [p[2]]
-            p[0] = Node('states', *p[1].child, p[2])
+            p[0] = Node('states', *p[1].childs, p[2])
     
     def p_state(self, p):
         '''
-        state : NEWLINE STATE ID expressions END
+        state : STATE ID expressions ENDSTATE
         '''
-        p[0] = Node(('state', p[2+1]), *p[3+1]) # where p[3] is a list of expression AST Nodes.
+        p[0] = Node(('state', p[2]), *p[3]) # where p[3] is a list of expression AST Nodes.
         
     def p_expressions(self, p):
         '''
@@ -106,19 +106,19 @@ class Parser:
             
     def p_expression(self, p):
         '''
-        expression : NEWLINE switch
-                    | NEWLINE speak
-                    | NEWLINE goto
-                    | NEWLINE timeout
-                    | NEWLINE exit
+        expression : switch
+                    | speak
+                    | goto
+                    | timeout
+                    | exit
         '''
-        p[0] = p[2]
+        p[0] = p[1]
     
     def p_switch(self, p):
         '''
-        switch : SWITCH cases NEWLINE default
+        switch : SWITCH cases default
         '''
-        p[0] = Node('switch', *p[2], p[4])
+        p[0] = Node('switch', *p[2], p[3])
     def p_cases(self, p):
         '''
         cases : case
@@ -131,9 +131,9 @@ class Parser:
             
     def p_case(self, p):
         '''
-        case : NEWLINE CASE STR expressions 
+        case : CASE STR expressions 
         '''
-        p[0] = Node('case', p[2+1], *p[3+1])
+        p[0] = Node('case', p[2], *p[3])
         
     def p_speak(self, p):
         '''
@@ -151,15 +151,18 @@ class Parser:
         else:
             p[0] = p[1] + [p[2]]
     
-    def p_term(self, p):
+    def p_term_str(self, p):
         '''
         term : STR
-                | VAR
         '''
-        if(p[1] == 'STR'):
-            p[0] = Node('str', p[1])
-        else:
-            p[0] = Node('var', p[1])
+        p[0] = Node(('str', p[1]))
+        
+    def p_term_var(self, p):
+        '''
+        term : VAR
+        '''
+        p[0] = Node(('var', p[1]))
+        
     def p_goto(self, p):
         '''
         goto : GOTO ID
@@ -168,13 +171,13 @@ class Parser:
         
     def p_timeout(self, p):
         '''
-        timeout : TIMEOUT VAR expressions
+        timeout : TIMEOUT VAR expressions ENDTIMEOUT
         '''
         p[0] = Node('timeout', p[2], *p[3])
     
     def p_default(self, p):
         '''
-        default : DEFAULT expressions
+        default : DEFAULT expressions ENDSWITCH
         '''
         p[0] = Node('default', *p[2])
         

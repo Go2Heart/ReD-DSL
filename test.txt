@@ -3,7 +3,7 @@ variable
     x real $100
     y integer $100
     z text "hello"
-end
+endVariable
 
 
 state start
@@ -17,4 +17,12 @@ state start
             exit
         default 
             speak "default"
-end
+    endSwitch
+endState
+
+state goodbye
+    speak "Goodbye, world!"
+    timeout $10 
+        goto start
+    endTimeout
+endState

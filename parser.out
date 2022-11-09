@@ -3,47 +3,49 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 Grammar
 
 Rule 0     S' -> script
-Rule 1     script -> SCRIPT ID variables NEWLINE states
-Rule 2     variables -> NEWLINE VARIABLE vars END
+Rule 1     script -> SCRIPT ID variables states
+Rule 2     variables -> VARIABLE vars ENDVARIABLE
 Rule 3     vars -> var
 Rule 4     vars -> vars var
-Rule 5     var -> NEWLINE ID REAL VAR
-Rule 6     var -> NEWLINE ID INTEGER VAR
-Rule 7     var -> NEWLINE ID TEXT STR
+Rule 5     var -> ID REAL VAR
+Rule 6     var -> ID INTEGER VAR
+Rule 7     var -> ID TEXT STR
 Rule 8     states -> state
 Rule 9     states -> states state
-Rule 10    state -> NEWLINE STATE ID expressions END
+Rule 10    state -> STATE ID expressions ENDSTATE
 Rule 11    expressions -> expression
 Rule 12    expressions -> expressions expression
-Rule 13    expression -> NEWLINE switch
-Rule 14    expression -> NEWLINE speak
-Rule 15    expression -> NEWLINE goto
-Rule 16    expression -> NEWLINE timeout
-Rule 17    expression -> NEWLINE exit
-Rule 18    switch -> SWITCH cases NEWLINE default
+Rule 13    expression -> switch
+Rule 14    expression -> speak
+Rule 15    expression -> goto
+Rule 16    expression -> timeout
+Rule 17    expression -> exit
+Rule 18    switch -> SWITCH cases default
 Rule 19    cases -> case
 Rule 20    cases -> cases case
-Rule 21    case -> NEWLINE CASE STR expressions
+Rule 21    case -> CASE STR expressions
 Rule 22    speak -> SPEAK terms
 Rule 23    terms -> term
 Rule 24    terms -> terms term
 Rule 25    term -> STR
 Rule 26    term -> VAR
 Rule 27    goto -> GOTO ID
-Rule 28    timeout -> TIMEOUT VAR expressions
-Rule 29    default -> DEFAULT expressions
+Rule 28    timeout -> TIMEOUT VAR expressions ENDTIMEOUT
+Rule 29    default -> DEFAULT expressions ENDSWITCH
 Rule 30    exit -> EXIT
 
 Terminals, with rules where they appear
 
 CASE                 : 21
 DEFAULT              : 29
-END                  : 2 10
+ENDSTATE             : 10
+ENDSWITCH            : 29
+ENDTIMEOUT           : 28
+ENDVARIABLE          : 2
 EXIT                 : 30
 GOTO                 : 27
 ID                   : 1 5 6 7 10 27
 INTEGER              : 6
-NEWLINE              : 1 2 5 6 7 10 13 14 15 16 17 18 21
 REAL                 : 5
 SCRIPT               : 1
 SPEAK                : 22
@@ -82,7 +84,7 @@ Parsing method: LALR
 state 0
 
     (0) S' -> . script
-    (1) script -> . SCRIPT ID variables NEWLINE states
+    (1) script -> . SCRIPT ID variables states
 
     SCRIPT          shift and go to state 2
 
@@ -96,319 +98,316 @@ state 1
 
 state 2
 
-    (1) script -> SCRIPT . ID variables NEWLINE states
+    (1) script -> SCRIPT . ID variables states
 
     ID              shift and go to state 3
 
 
 state 3
 
-    (1) script -> SCRIPT ID . variables NEWLINE states
-    (2) variables -> . NEWLINE VARIABLE vars END
+    (1) script -> SCRIPT ID . variables states
+    (2) variables -> . VARIABLE vars ENDVARIABLE
 
-    NEWLINE         shift and go to state 5
+    VARIABLE        shift and go to state 5
 
     variables                      shift and go to state 4
 
 state 4
 
-    (1) script -> SCRIPT ID variables . NEWLINE states
+    (1) script -> SCRIPT ID variables . states
+    (8) states -> . state
+    (9) states -> . states state
+    (10) state -> . STATE ID expressions ENDSTATE
 
-    NEWLINE         shift and go to state 6
+    STATE           shift and go to state 8
 
+    states                         shift and go to state 6
+    state                          shift and go to state 7
 
 state 5
 
-    (2) variables -> NEWLINE . VARIABLE vars END
+    (2) variables -> VARIABLE . vars ENDVARIABLE
+    (3) vars -> . var
+    (4) vars -> . vars var
+    (5) var -> . ID REAL VAR
+    (6) var -> . ID INTEGER VAR
+    (7) var -> . ID TEXT STR
 
-    VARIABLE        shift and go to state 7
+    ID              shift and go to state 11
 
+    vars                           shift and go to state 9
+    var                            shift and go to state 10
 
 state 6
 
-    (1) script -> SCRIPT ID variables NEWLINE . states
-    (8) states -> . state
-    (9) states -> . states state
-    (10) state -> . NEWLINE STATE ID expressions END
+    (1) script -> SCRIPT ID variables states .
+    (9) states -> states . state
+    (10) state -> . STATE ID expressions ENDSTATE
 
-    NEWLINE         shift and go to state 8
+    $end            reduce using rule 1 (script -> SCRIPT ID variables states .)
+    STATE           shift and go to state 8
 
-    states                         shift and go to state 9
-    state                          shift and go to state 10
+    state                          shift and go to state 12
 
 state 7
 
-    (2) variables -> NEWLINE VARIABLE . vars END
-    (3) vars -> . var
-    (4) vars -> . vars var
-    (5) var -> . NEWLINE ID REAL VAR
-    (6) var -> . NEWLINE ID INTEGER VAR
-    (7) var -> . NEWLINE ID TEXT STR
+    (8) states -> state .
 
-    NEWLINE         shift and go to state 11
+    STATE           reduce using rule 8 (states -> state .)
+    $end            reduce using rule 8 (states -> state .)
 
-    vars                           shift and go to state 12
-    var                            shift and go to state 13
 
 state 8
 
-    (10) state -> NEWLINE . STATE ID expressions END
+    (10) state -> STATE . ID expressions ENDSTATE
 
-    STATE           shift and go to state 14
+    ID              shift and go to state 13
 
 
 state 9
 
-    (1) script -> SCRIPT ID variables NEWLINE states .
-    (9) states -> states . state
-    (10) state -> . NEWLINE STATE ID expressions END
+    (2) variables -> VARIABLE vars . ENDVARIABLE
+    (4) vars -> vars . var
+    (5) var -> . ID REAL VAR
+    (6) var -> . ID INTEGER VAR
+    (7) var -> . ID TEXT STR
 
-    $end            reduce using rule 1 (script -> SCRIPT ID variables NEWLINE states .)
-    NEWLINE         shift and go to state 8
+    ENDVARIABLE     shift and go to state 14
+    ID              shift and go to state 11
 
-    state                          shift and go to state 15
+    var                            shift and go to state 15
 
 state 10
 
-    (8) states -> state .
+    (3) vars -> var .
 
-    NEWLINE         reduce using rule 8 (states -> state .)
-    $end            reduce using rule 8 (states -> state .)
+    ENDVARIABLE     reduce using rule 3 (vars -> var .)
+    ID              reduce using rule 3 (vars -> var .)
 
 
 state 11
 
-    (5) var -> NEWLINE . ID REAL VAR
-    (6) var -> NEWLINE . ID INTEGER VAR
-    (7) var -> NEWLINE . ID TEXT STR
+    (5) var -> ID . REAL VAR
+    (6) var -> ID . INTEGER VAR
+    (7) var -> ID . TEXT STR
 
-    ID              shift and go to state 16
+    REAL            shift and go to state 16
+    INTEGER         shift and go to state 17
+    TEXT            shift and go to state 18
 
 
 state 12
 
-    (2) variables -> NEWLINE VARIABLE vars . END
-    (4) vars -> vars . var
-    (5) var -> . NEWLINE ID REAL VAR
-    (6) var -> . NEWLINE ID INTEGER VAR
-    (7) var -> . NEWLINE ID TEXT STR
+    (9) states -> states state .
 
-    END             shift and go to state 17
-    NEWLINE         shift and go to state 11
+    STATE           reduce using rule 9 (states -> states state .)
+    $end            reduce using rule 9 (states -> states state .)
 
-    var                            shift and go to state 18
 
 state 13
 
-    (3) vars -> var .
+    (10) state -> STATE ID . expressions ENDSTATE
+    (11) expressions -> . expression
+    (12) expressions -> . expressions expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) switch -> . SWITCH cases default
+    (22) speak -> . SPEAK terms
+    (27) goto -> . GOTO ID
+    (28) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (30) exit -> . EXIT
 
-    END             reduce using rule 3 (vars -> var .)
-    NEWLINE         reduce using rule 3 (vars -> var .)
+    SWITCH          shift and go to state 26
+    SPEAK           shift and go to state 27
+    GOTO            shift and go to state 28
+    TIMEOUT         shift and go to state 29
+    EXIT            shift and go to state 30
 
+    expressions                    shift and go to state 19
+    expression                     shift and go to state 20
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
 
 state 14
 
-    (10) state -> NEWLINE STATE . ID expressions END
+    (2) variables -> VARIABLE vars ENDVARIABLE .
 
-    ID              shift and go to state 19
+    STATE           reduce using rule 2 (variables -> VARIABLE vars ENDVARIABLE .)
 
 
 state 15
 
-    (9) states -> states state .
+    (4) vars -> vars var .
 
-    NEWLINE         reduce using rule 9 (states -> states state .)
-    $end            reduce using rule 9 (states -> states state .)
+    ENDVARIABLE     reduce using rule 4 (vars -> vars var .)
+    ID              reduce using rule 4 (vars -> vars var .)
 
 
 state 16
 
-    (5) var -> NEWLINE ID . REAL VAR
-    (6) var -> NEWLINE ID . INTEGER VAR
-    (7) var -> NEWLINE ID . TEXT STR
+    (5) var -> ID REAL . VAR
 
-    REAL            shift and go to state 20
-    INTEGER         shift and go to state 21
-    TEXT            shift and go to state 22
+    VAR             shift and go to state 31
 
 
 state 17
 
-    (2) variables -> NEWLINE VARIABLE vars END .
+    (6) var -> ID INTEGER . VAR
 
-    NEWLINE         reduce using rule 2 (variables -> NEWLINE VARIABLE vars END .)
+    VAR             shift and go to state 32
 
 
 state 18
 
-    (4) vars -> vars var .
+    (7) var -> ID TEXT . STR
 
-    END             reduce using rule 4 (vars -> vars var .)
-    NEWLINE         reduce using rule 4 (vars -> vars var .)
+    STR             shift and go to state 33
 
 
 state 19
 
-    (10) state -> NEWLINE STATE ID . expressions END
-    (11) expressions -> . expression
-    (12) expressions -> . expressions expression
-    (13) expression -> . NEWLINE switch
-    (14) expression -> . NEWLINE speak
-    (15) expression -> . NEWLINE goto
-    (16) expression -> . NEWLINE timeout
-    (17) expression -> . NEWLINE exit
+    (10) state -> STATE ID expressions . ENDSTATE
+    (12) expressions -> expressions . expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) switch -> . SWITCH cases default
+    (22) speak -> . SPEAK terms
+    (27) goto -> . GOTO ID
+    (28) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (30) exit -> . EXIT
 
-    NEWLINE         shift and go to state 23
+    ENDSTATE        shift and go to state 34
+    SWITCH          shift and go to state 26
+    SPEAK           shift and go to state 27
+    GOTO            shift and go to state 28
+    TIMEOUT         shift and go to state 29
+    EXIT            shift and go to state 30
 
-    expressions                    shift and go to state 24
-    expression                     shift and go to state 25
+    expression                     shift and go to state 35
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
 
 state 20
 
-    (5) var -> NEWLINE ID REAL . VAR
+    (11) expressions -> expression .
 
-    VAR             shift and go to state 26
+    ENDSTATE        reduce using rule 11 (expressions -> expression .)
+    SWITCH          reduce using rule 11 (expressions -> expression .)
+    SPEAK           reduce using rule 11 (expressions -> expression .)
+    GOTO            reduce using rule 11 (expressions -> expression .)
+    TIMEOUT         reduce using rule 11 (expressions -> expression .)
+    EXIT            reduce using rule 11 (expressions -> expression .)
+    ENDTIMEOUT      reduce using rule 11 (expressions -> expression .)
+    ENDSWITCH       reduce using rule 11 (expressions -> expression .)
+    DEFAULT         reduce using rule 11 (expressions -> expression .)
+    CASE            reduce using rule 11 (expressions -> expression .)
 
 
 state 21
 
-    (6) var -> NEWLINE ID INTEGER . VAR
+    (13) expression -> switch .
 
-    VAR             shift and go to state 27
+    ENDSTATE        reduce using rule 13 (expression -> switch .)
+    SWITCH          reduce using rule 13 (expression -> switch .)
+    SPEAK           reduce using rule 13 (expression -> switch .)
+    GOTO            reduce using rule 13 (expression -> switch .)
+    TIMEOUT         reduce using rule 13 (expression -> switch .)
+    EXIT            reduce using rule 13 (expression -> switch .)
+    ENDTIMEOUT      reduce using rule 13 (expression -> switch .)
+    ENDSWITCH       reduce using rule 13 (expression -> switch .)
+    DEFAULT         reduce using rule 13 (expression -> switch .)
+    CASE            reduce using rule 13 (expression -> switch .)
 
 
 state 22
 
-    (7) var -> NEWLINE ID TEXT . STR
+    (14) expression -> speak .
 
-    STR             shift and go to state 28
+    ENDSTATE        reduce using rule 14 (expression -> speak .)
+    SWITCH          reduce using rule 14 (expression -> speak .)
+    SPEAK           reduce using rule 14 (expression -> speak .)
+    GOTO            reduce using rule 14 (expression -> speak .)
+    TIMEOUT         reduce using rule 14 (expression -> speak .)
+    EXIT            reduce using rule 14 (expression -> speak .)
+    ENDTIMEOUT      reduce using rule 14 (expression -> speak .)
+    ENDSWITCH       reduce using rule 14 (expression -> speak .)
+    DEFAULT         reduce using rule 14 (expression -> speak .)
+    CASE            reduce using rule 14 (expression -> speak .)
 
 
 state 23
 
-    (13) expression -> NEWLINE . switch
-    (14) expression -> NEWLINE . speak
-    (15) expression -> NEWLINE . goto
-    (16) expression -> NEWLINE . timeout
-    (17) expression -> NEWLINE . exit
-    (18) switch -> . SWITCH cases NEWLINE default
-    (22) speak -> . SPEAK terms
-    (27) goto -> . GOTO ID
-    (28) timeout -> . TIMEOUT VAR expressions
-    (30) exit -> . EXIT
+    (15) expression -> goto .
 
-    SWITCH          shift and go to state 34
-    SPEAK           shift and go to state 35
-    GOTO            shift and go to state 36
-    TIMEOUT         shift and go to state 37
-    EXIT            shift and go to state 38
+    ENDSTATE        reduce using rule 15 (expression -> goto .)
+    SWITCH          reduce using rule 15 (expression -> goto .)
+    SPEAK           reduce using rule 15 (expression -> goto .)
+    GOTO            reduce using rule 15 (expression -> goto .)
+    TIMEOUT         reduce using rule 15 (expression -> goto .)
+    EXIT            reduce using rule 15 (expression -> goto .)
+    ENDTIMEOUT      reduce using rule 15 (expression -> goto .)
+    ENDSWITCH       reduce using rule 15 (expression -> goto .)
+    DEFAULT         reduce using rule 15 (expression -> goto .)
+    CASE            reduce using rule 15 (expression -> goto .)
 
-    switch                         shift and go to state 29
-    speak                          shift and go to state 30
-    goto                           shift and go to state 31
-    timeout                        shift and go to state 32
-    exit                           shift and go to state 33
 
 state 24
 
-    (10) state -> NEWLINE STATE ID expressions . END
-    (12) expressions -> expressions . expression
-    (13) expression -> . NEWLINE switch
-    (14) expression -> . NEWLINE speak
-    (15) expression -> . NEWLINE goto
-    (16) expression -> . NEWLINE timeout
-    (17) expression -> . NEWLINE exit
+    (16) expression -> timeout .
 
-    END             shift and go to state 39
-    NEWLINE         shift and go to state 23
+    ENDSTATE        reduce using rule 16 (expression -> timeout .)
+    SWITCH          reduce using rule 16 (expression -> timeout .)
+    SPEAK           reduce using rule 16 (expression -> timeout .)
+    GOTO            reduce using rule 16 (expression -> timeout .)
+    TIMEOUT         reduce using rule 16 (expression -> timeout .)
+    EXIT            reduce using rule 16 (expression -> timeout .)
+    ENDTIMEOUT      reduce using rule 16 (expression -> timeout .)
+    ENDSWITCH       reduce using rule 16 (expression -> timeout .)
+    DEFAULT         reduce using rule 16 (expression -> timeout .)
+    CASE            reduce using rule 16 (expression -> timeout .)
 
-    expression                     shift and go to state 40
 
 state 25
 
-    (11) expressions -> expression .
+    (17) expression -> exit .
 
-    END             reduce using rule 11 (expressions -> expression .)
-    NEWLINE         reduce using rule 11 (expressions -> expression .)
+    ENDSTATE        reduce using rule 17 (expression -> exit .)
+    SWITCH          reduce using rule 17 (expression -> exit .)
+    SPEAK           reduce using rule 17 (expression -> exit .)
+    GOTO            reduce using rule 17 (expression -> exit .)
+    TIMEOUT         reduce using rule 17 (expression -> exit .)
+    EXIT            reduce using rule 17 (expression -> exit .)
+    ENDTIMEOUT      reduce using rule 17 (expression -> exit .)
+    ENDSWITCH       reduce using rule 17 (expression -> exit .)
+    DEFAULT         reduce using rule 17 (expression -> exit .)
+    CASE            reduce using rule 17 (expression -> exit .)
 
 
 state 26
 
-    (5) var -> NEWLINE ID REAL VAR .
-
-    END             reduce using rule 5 (var -> NEWLINE ID REAL VAR .)
-    NEWLINE         reduce using rule 5 (var -> NEWLINE ID REAL VAR .)
-
-
-state 27
-
-    (6) var -> NEWLINE ID INTEGER VAR .
-
-    END             reduce using rule 6 (var -> NEWLINE ID INTEGER VAR .)
-    NEWLINE         reduce using rule 6 (var -> NEWLINE ID INTEGER VAR .)
-
-
-state 28
-
-    (7) var -> NEWLINE ID TEXT STR .
-
-    END             reduce using rule 7 (var -> NEWLINE ID TEXT STR .)
-    NEWLINE         reduce using rule 7 (var -> NEWLINE ID TEXT STR .)
-
-
-state 29
-
-    (13) expression -> NEWLINE switch .
-
-    END             reduce using rule 13 (expression -> NEWLINE switch .)
-    NEWLINE         reduce using rule 13 (expression -> NEWLINE switch .)
-
-
-state 30
-
-    (14) expression -> NEWLINE speak .
-
-    END             reduce using rule 14 (expression -> NEWLINE speak .)
-    NEWLINE         reduce using rule 14 (expression -> NEWLINE speak .)
-
-
-state 31
-
-    (15) expression -> NEWLINE goto .
-
-    END             reduce using rule 15 (expression -> NEWLINE goto .)
-    NEWLINE         reduce using rule 15 (expression -> NEWLINE goto .)
-
-
-state 32
-
-    (16) expression -> NEWLINE timeout .
-
-    END             reduce using rule 16 (expression -> NEWLINE timeout .)
-    NEWLINE         reduce using rule 16 (expression -> NEWLINE timeout .)
-
-
-state 33
-
-    (17) expression -> NEWLINE exit .
-
-    END             reduce using rule 17 (expression -> NEWLINE exit .)
-    NEWLINE         reduce using rule 17 (expression -> NEWLINE exit .)
-
-
-state 34
-
-    (18) switch -> SWITCH . cases NEWLINE default
+    (18) switch -> SWITCH . cases default
     (19) cases -> . case
     (20) cases -> . cases case
-    (21) case -> . NEWLINE CASE STR expressions
+    (21) case -> . CASE STR expressions
 
-    NEWLINE         shift and go to state 42
+    CASE            shift and go to state 38
 
-    cases                          shift and go to state 41
-    case                           shift and go to state 43
+    cases                          shift and go to state 36
+    case                           shift and go to state 37
 
-state 35
+state 27
 
     (22) speak -> SPEAK . terms
     (23) terms -> . term
@@ -416,272 +415,458 @@ state 35
     (25) term -> . STR
     (26) term -> . VAR
 
-    STR             shift and go to state 46
-    VAR             shift and go to state 47
+    STR             shift and go to state 41
+    VAR             shift and go to state 42
 
-    terms                          shift and go to state 44
-    term                           shift and go to state 45
+    terms                          shift and go to state 39
+    term                           shift and go to state 40
 
-state 36
+state 28
 
     (27) goto -> GOTO . ID
 
-    ID              shift and go to state 48
+    ID              shift and go to state 43
 
+
+state 29
+
+    (28) timeout -> TIMEOUT . VAR expressions ENDTIMEOUT
+
+    VAR             shift and go to state 44
+
+
+state 30
+
+    (30) exit -> EXIT .
+
+    ENDSTATE        reduce using rule 30 (exit -> EXIT .)
+    SWITCH          reduce using rule 30 (exit -> EXIT .)
+    SPEAK           reduce using rule 30 (exit -> EXIT .)
+    GOTO            reduce using rule 30 (exit -> EXIT .)
+    TIMEOUT         reduce using rule 30 (exit -> EXIT .)
+    EXIT            reduce using rule 30 (exit -> EXIT .)
+    ENDTIMEOUT      reduce using rule 30 (exit -> EXIT .)
+    ENDSWITCH       reduce using rule 30 (exit -> EXIT .)
+    DEFAULT         reduce using rule 30 (exit -> EXIT .)
+    CASE            reduce using rule 30 (exit -> EXIT .)
+
+
+state 31
+
+    (5) var -> ID REAL VAR .
+
+    ENDVARIABLE     reduce using rule 5 (var -> ID REAL VAR .)
+    ID              reduce using rule 5 (var -> ID REAL VAR .)
+
+
+state 32
+
+    (6) var -> ID INTEGER VAR .
+
+    ENDVARIABLE     reduce using rule 6 (var -> ID INTEGER VAR .)
+    ID              reduce using rule 6 (var -> ID INTEGER VAR .)
+
+
+state 33
+
+    (7) var -> ID TEXT STR .
+
+    ENDVARIABLE     reduce using rule 7 (var -> ID TEXT STR .)
+    ID              reduce using rule 7 (var -> ID TEXT STR .)
+
+
+state 34
+
+    (10) state -> STATE ID expressions ENDSTATE .
+
+    STATE           reduce using rule 10 (state -> STATE ID expressions ENDSTATE .)
+    $end            reduce using rule 10 (state -> STATE ID expressions ENDSTATE .)
+
+
+state 35
+
+    (12) expressions -> expressions expression .
+
+    ENDSTATE        reduce using rule 12 (expressions -> expressions expression .)
+    SWITCH          reduce using rule 12 (expressions -> expressions expression .)
+    SPEAK           reduce using rule 12 (expressions -> expressions expression .)
+    GOTO            reduce using rule 12 (expressions -> expressions expression .)
+    TIMEOUT         reduce using rule 12 (expressions -> expressions expression .)
+    EXIT            reduce using rule 12 (expressions -> expressions expression .)
+    ENDTIMEOUT      reduce using rule 12 (expressions -> expressions expression .)
+    ENDSWITCH       reduce using rule 12 (expressions -> expressions expression .)
+    DEFAULT         reduce using rule 12 (expressions -> expressions expression .)
+    CASE            reduce using rule 12 (expressions -> expressions expression .)
+
+
+state 36
+
+    (18) switch -> SWITCH cases . default
+    (20) cases -> cases . case
+    (29) default -> . DEFAULT expressions ENDSWITCH
+    (21) case -> . CASE STR expressions
+
+    DEFAULT         shift and go to state 47
+    CASE            shift and go to state 38
+
+    default                        shift and go to state 45
+    case                           shift and go to state 46
 
 state 37
 
-    (28) timeout -> TIMEOUT . VAR expressions
+    (19) cases -> case .
 
-    VAR             shift and go to state 49
+    DEFAULT         reduce using rule 19 (cases -> case .)
+    CASE            reduce using rule 19 (cases -> case .)
 
 
 state 38
 
-    (30) exit -> EXIT .
+    (21) case -> CASE . STR expressions
 
-    END             reduce using rule 30 (exit -> EXIT .)
-    NEWLINE         reduce using rule 30 (exit -> EXIT .)
+    STR             shift and go to state 48
 
 
 state 39
-
-    (10) state -> NEWLINE STATE ID expressions END .
-
-    NEWLINE         reduce using rule 10 (state -> NEWLINE STATE ID expressions END .)
-    $end            reduce using rule 10 (state -> NEWLINE STATE ID expressions END .)
-
-
-state 40
-
-    (12) expressions -> expressions expression .
-
-    END             reduce using rule 12 (expressions -> expressions expression .)
-    NEWLINE         reduce using rule 12 (expressions -> expressions expression .)
-
-
-state 41
-
-    (18) switch -> SWITCH cases . NEWLINE default
-    (20) cases -> cases . case
-    (21) case -> . NEWLINE CASE STR expressions
-
-    NEWLINE         shift and go to state 50
-
-    case                           shift and go to state 51
-
-state 42
-
-    (21) case -> NEWLINE . CASE STR expressions
-
-    CASE            shift and go to state 52
-
-
-state 43
-
-    (19) cases -> case .
-
-    NEWLINE         reduce using rule 19 (cases -> case .)
-
-
-state 44
 
     (22) speak -> SPEAK terms .
     (24) terms -> terms . term
     (25) term -> . STR
     (26) term -> . VAR
 
-    END             reduce using rule 22 (speak -> SPEAK terms .)
-    NEWLINE         reduce using rule 22 (speak -> SPEAK terms .)
-    STR             shift and go to state 46
-    VAR             shift and go to state 47
+    ENDSTATE        reduce using rule 22 (speak -> SPEAK terms .)
+    SWITCH          reduce using rule 22 (speak -> SPEAK terms .)
+    SPEAK           reduce using rule 22 (speak -> SPEAK terms .)
+    GOTO            reduce using rule 22 (speak -> SPEAK terms .)
+    TIMEOUT         reduce using rule 22 (speak -> SPEAK terms .)
+    EXIT            reduce using rule 22 (speak -> SPEAK terms .)
+    ENDTIMEOUT      reduce using rule 22 (speak -> SPEAK terms .)
+    ENDSWITCH       reduce using rule 22 (speak -> SPEAK terms .)
+    DEFAULT         reduce using rule 22 (speak -> SPEAK terms .)
+    CASE            reduce using rule 22 (speak -> SPEAK terms .)
+    STR             shift and go to state 41
+    VAR             shift and go to state 42
 
-    term                           shift and go to state 53
+    term                           shift and go to state 49
 
-state 45
+state 40
 
     (23) terms -> term .
 
     STR             reduce using rule 23 (terms -> term .)
     VAR             reduce using rule 23 (terms -> term .)
-    END             reduce using rule 23 (terms -> term .)
-    NEWLINE         reduce using rule 23 (terms -> term .)
+    ENDSTATE        reduce using rule 23 (terms -> term .)
+    SWITCH          reduce using rule 23 (terms -> term .)
+    SPEAK           reduce using rule 23 (terms -> term .)
+    GOTO            reduce using rule 23 (terms -> term .)
+    TIMEOUT         reduce using rule 23 (terms -> term .)
+    EXIT            reduce using rule 23 (terms -> term .)
+    ENDTIMEOUT      reduce using rule 23 (terms -> term .)
+    ENDSWITCH       reduce using rule 23 (terms -> term .)
+    DEFAULT         reduce using rule 23 (terms -> term .)
+    CASE            reduce using rule 23 (terms -> term .)
 
 
-state 46
+state 41
 
     (25) term -> STR .
 
     STR             reduce using rule 25 (term -> STR .)
     VAR             reduce using rule 25 (term -> STR .)
-    END             reduce using rule 25 (term -> STR .)
-    NEWLINE         reduce using rule 25 (term -> STR .)
+    ENDSTATE        reduce using rule 25 (term -> STR .)
+    SWITCH          reduce using rule 25 (term -> STR .)
+    SPEAK           reduce using rule 25 (term -> STR .)
+    GOTO            reduce using rule 25 (term -> STR .)
+    TIMEOUT         reduce using rule 25 (term -> STR .)
+    EXIT            reduce using rule 25 (term -> STR .)
+    ENDTIMEOUT      reduce using rule 25 (term -> STR .)
+    ENDSWITCH       reduce using rule 25 (term -> STR .)
+    DEFAULT         reduce using rule 25 (term -> STR .)
+    CASE            reduce using rule 25 (term -> STR .)
 
 
-state 47
+state 42
 
     (26) term -> VAR .
 
     STR             reduce using rule 26 (term -> VAR .)
     VAR             reduce using rule 26 (term -> VAR .)
-    END             reduce using rule 26 (term -> VAR .)
-    NEWLINE         reduce using rule 26 (term -> VAR .)
+    ENDSTATE        reduce using rule 26 (term -> VAR .)
+    SWITCH          reduce using rule 26 (term -> VAR .)
+    SPEAK           reduce using rule 26 (term -> VAR .)
+    GOTO            reduce using rule 26 (term -> VAR .)
+    TIMEOUT         reduce using rule 26 (term -> VAR .)
+    EXIT            reduce using rule 26 (term -> VAR .)
+    ENDTIMEOUT      reduce using rule 26 (term -> VAR .)
+    ENDSWITCH       reduce using rule 26 (term -> VAR .)
+    DEFAULT         reduce using rule 26 (term -> VAR .)
+    CASE            reduce using rule 26 (term -> VAR .)
 
 
-state 48
+state 43
 
     (27) goto -> GOTO ID .
 
-    END             reduce using rule 27 (goto -> GOTO ID .)
-    NEWLINE         reduce using rule 27 (goto -> GOTO ID .)
+    ENDSTATE        reduce using rule 27 (goto -> GOTO ID .)
+    SWITCH          reduce using rule 27 (goto -> GOTO ID .)
+    SPEAK           reduce using rule 27 (goto -> GOTO ID .)
+    GOTO            reduce using rule 27 (goto -> GOTO ID .)
+    TIMEOUT         reduce using rule 27 (goto -> GOTO ID .)
+    EXIT            reduce using rule 27 (goto -> GOTO ID .)
+    ENDTIMEOUT      reduce using rule 27 (goto -> GOTO ID .)
+    ENDSWITCH       reduce using rule 27 (goto -> GOTO ID .)
+    DEFAULT         reduce using rule 27 (goto -> GOTO ID .)
+    CASE            reduce using rule 27 (goto -> GOTO ID .)
 
 
-state 49
+state 44
 
-    (28) timeout -> TIMEOUT VAR . expressions
+    (28) timeout -> TIMEOUT VAR . expressions ENDTIMEOUT
     (11) expressions -> . expression
     (12) expressions -> . expressions expression
-    (13) expression -> . NEWLINE switch
-    (14) expression -> . NEWLINE speak
-    (15) expression -> . NEWLINE goto
-    (16) expression -> . NEWLINE timeout
-    (17) expression -> . NEWLINE exit
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) switch -> . SWITCH cases default
+    (22) speak -> . SPEAK terms
+    (27) goto -> . GOTO ID
+    (28) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (30) exit -> . EXIT
 
-    NEWLINE         shift and go to state 23
+    SWITCH          shift and go to state 26
+    SPEAK           shift and go to state 27
+    GOTO            shift and go to state 28
+    TIMEOUT         shift and go to state 29
+    EXIT            shift and go to state 30
 
-    expressions                    shift and go to state 54
-    expression                     shift and go to state 25
+    expressions                    shift and go to state 50
+    expression                     shift and go to state 20
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
 
-state 50
+state 45
 
-    (18) switch -> SWITCH cases NEWLINE . default
-    (21) case -> NEWLINE . CASE STR expressions
-    (29) default -> . DEFAULT expressions
+    (18) switch -> SWITCH cases default .
 
-    CASE            shift and go to state 52
-    DEFAULT         shift and go to state 56
+    ENDSTATE        reduce using rule 18 (switch -> SWITCH cases default .)
+    SWITCH          reduce using rule 18 (switch -> SWITCH cases default .)
+    SPEAK           reduce using rule 18 (switch -> SWITCH cases default .)
+    GOTO            reduce using rule 18 (switch -> SWITCH cases default .)
+    TIMEOUT         reduce using rule 18 (switch -> SWITCH cases default .)
+    EXIT            reduce using rule 18 (switch -> SWITCH cases default .)
+    ENDTIMEOUT      reduce using rule 18 (switch -> SWITCH cases default .)
+    ENDSWITCH       reduce using rule 18 (switch -> SWITCH cases default .)
+    DEFAULT         reduce using rule 18 (switch -> SWITCH cases default .)
+    CASE            reduce using rule 18 (switch -> SWITCH cases default .)
 
-    default                        shift and go to state 55
 
-state 51
+state 46
 
     (20) cases -> cases case .
 
-    NEWLINE         reduce using rule 20 (cases -> cases case .)
+    DEFAULT         reduce using rule 20 (cases -> cases case .)
+    CASE            reduce using rule 20 (cases -> cases case .)
 
 
-state 52
+state 47
 
-    (21) case -> NEWLINE CASE . STR expressions
+    (29) default -> DEFAULT . expressions ENDSWITCH
+    (11) expressions -> . expression
+    (12) expressions -> . expressions expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) switch -> . SWITCH cases default
+    (22) speak -> . SPEAK terms
+    (27) goto -> . GOTO ID
+    (28) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (30) exit -> . EXIT
 
-    STR             shift and go to state 57
+    SWITCH          shift and go to state 26
+    SPEAK           shift and go to state 27
+    GOTO            shift and go to state 28
+    TIMEOUT         shift and go to state 29
+    EXIT            shift and go to state 30
 
+    expressions                    shift and go to state 51
+    expression                     shift and go to state 20
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
 
-state 53
+state 48
+
+    (21) case -> CASE STR . expressions
+    (11) expressions -> . expression
+    (12) expressions -> . expressions expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) switch -> . SWITCH cases default
+    (22) speak -> . SPEAK terms
+    (27) goto -> . GOTO ID
+    (28) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (30) exit -> . EXIT
+
+    SWITCH          shift and go to state 26
+    SPEAK           shift and go to state 27
+    GOTO            shift and go to state 28
+    TIMEOUT         shift and go to state 29
+    EXIT            shift and go to state 30
+
+    expressions                    shift and go to state 52
+    expression                     shift and go to state 20
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
+
+state 49
 
     (24) terms -> terms term .
 
     STR             reduce using rule 24 (terms -> terms term .)
     VAR             reduce using rule 24 (terms -> terms term .)
-    END             reduce using rule 24 (terms -> terms term .)
-    NEWLINE         reduce using rule 24 (terms -> terms term .)
+    ENDSTATE        reduce using rule 24 (terms -> terms term .)
+    SWITCH          reduce using rule 24 (terms -> terms term .)
+    SPEAK           reduce using rule 24 (terms -> terms term .)
+    GOTO            reduce using rule 24 (terms -> terms term .)
+    TIMEOUT         reduce using rule 24 (terms -> terms term .)
+    EXIT            reduce using rule 24 (terms -> terms term .)
+    ENDTIMEOUT      reduce using rule 24 (terms -> terms term .)
+    ENDSWITCH       reduce using rule 24 (terms -> terms term .)
+    DEFAULT         reduce using rule 24 (terms -> terms term .)
+    CASE            reduce using rule 24 (terms -> terms term .)
+
+
+state 50
+
+    (28) timeout -> TIMEOUT VAR expressions . ENDTIMEOUT
+    (12) expressions -> expressions . expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) switch -> . SWITCH cases default
+    (22) speak -> . SPEAK terms
+    (27) goto -> . GOTO ID
+    (28) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (30) exit -> . EXIT
+
+    ENDTIMEOUT      shift and go to state 53
+    SWITCH          shift and go to state 26
+    SPEAK           shift and go to state 27
+    GOTO            shift and go to state 28
+    TIMEOUT         shift and go to state 29
+    EXIT            shift and go to state 30
+
+    expression                     shift and go to state 35
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
+
+state 51
+
+    (29) default -> DEFAULT expressions . ENDSWITCH
+    (12) expressions -> expressions . expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) switch -> . SWITCH cases default
+    (22) speak -> . SPEAK terms
+    (27) goto -> . GOTO ID
+    (28) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (30) exit -> . EXIT
+
+    ENDSWITCH       shift and go to state 54
+    SWITCH          shift and go to state 26
+    SPEAK           shift and go to state 27
+    GOTO            shift and go to state 28
+    TIMEOUT         shift and go to state 29
+    EXIT            shift and go to state 30
+
+    expression                     shift and go to state 35
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
+
+state 52
+
+    (21) case -> CASE STR expressions .
+    (12) expressions -> expressions . expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) switch -> . SWITCH cases default
+    (22) speak -> . SPEAK terms
+    (27) goto -> . GOTO ID
+    (28) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (30) exit -> . EXIT
+
+    DEFAULT         reduce using rule 21 (case -> CASE STR expressions .)
+    CASE            reduce using rule 21 (case -> CASE STR expressions .)
+    SWITCH          shift and go to state 26
+    SPEAK           shift and go to state 27
+    GOTO            shift and go to state 28
+    TIMEOUT         shift and go to state 29
+    EXIT            shift and go to state 30
+
+    expression                     shift and go to state 35
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
+
+state 53
+
+    (28) timeout -> TIMEOUT VAR expressions ENDTIMEOUT .
+
+    ENDSTATE        reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    SWITCH          reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    SPEAK           reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    GOTO            reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    TIMEOUT         reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    EXIT            reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    ENDTIMEOUT      reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    ENDSWITCH       reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    DEFAULT         reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    CASE            reduce using rule 28 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
 
 
 state 54
 
-    (28) timeout -> TIMEOUT VAR expressions .
-    (12) expressions -> expressions . expression
-    (13) expression -> . NEWLINE switch
-    (14) expression -> . NEWLINE speak
-    (15) expression -> . NEWLINE goto
-    (16) expression -> . NEWLINE timeout
-    (17) expression -> . NEWLINE exit
+    (29) default -> DEFAULT expressions ENDSWITCH .
 
-  ! shift/reduce conflict for NEWLINE resolved as shift
-    END             reduce using rule 28 (timeout -> TIMEOUT VAR expressions .)
-    NEWLINE         shift and go to state 23
+    ENDSTATE        reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    SWITCH          reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    SPEAK           reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    GOTO            reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    TIMEOUT         reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    EXIT            reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    ENDTIMEOUT      reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    ENDSWITCH       reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    DEFAULT         reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
+    CASE            reduce using rule 29 (default -> DEFAULT expressions ENDSWITCH .)
 
-  ! NEWLINE         [ reduce using rule 28 (timeout -> TIMEOUT VAR expressions .) ]
-
-    expression                     shift and go to state 40
-
-state 55
-
-    (18) switch -> SWITCH cases NEWLINE default .
-
-    END             reduce using rule 18 (switch -> SWITCH cases NEWLINE default .)
-    NEWLINE         reduce using rule 18 (switch -> SWITCH cases NEWLINE default .)
-
-
-state 56
-
-    (29) default -> DEFAULT . expressions
-    (11) expressions -> . expression
-    (12) expressions -> . expressions expression
-    (13) expression -> . NEWLINE switch
-    (14) expression -> . NEWLINE speak
-    (15) expression -> . NEWLINE goto
-    (16) expression -> . NEWLINE timeout
-    (17) expression -> . NEWLINE exit
-
-    NEWLINE         shift and go to state 23
-
-    expressions                    shift and go to state 58
-    expression                     shift and go to state 25
-
-state 57
-
-    (21) case -> NEWLINE CASE STR . expressions
-    (11) expressions -> . expression
-    (12) expressions -> . expressions expression
-    (13) expression -> . NEWLINE switch
-    (14) expression -> . NEWLINE speak
-    (15) expression -> . NEWLINE goto
-    (16) expression -> . NEWLINE timeout
-    (17) expression -> . NEWLINE exit
-
-    NEWLINE         shift and go to state 23
-
-    expressions                    shift and go to state 59
-    expression                     shift and go to state 25
-
-state 58
-
-    (29) default -> DEFAULT expressions .
-    (12) expressions -> expressions . expression
-    (13) expression -> . NEWLINE switch
-    (14) expression -> . NEWLINE speak
-    (15) expression -> . NEWLINE goto
-    (16) expression -> . NEWLINE timeout
-    (17) expression -> . NEWLINE exit
-
-  ! shift/reduce conflict for NEWLINE resolved as shift
-    END             reduce using rule 29 (default -> DEFAULT expressions .)
-    NEWLINE         shift and go to state 23
-
-  ! NEWLINE         [ reduce using rule 29 (default -> DEFAULT expressions .) ]
-
-    expression                     shift and go to state 40
-
-state 59
-
-    (21) case -> NEWLINE CASE STR expressions .
-    (12) expressions -> expressions . expression
-    (13) expression -> . NEWLINE switch
-    (14) expression -> . NEWLINE speak
-    (15) expression -> . NEWLINE goto
-    (16) expression -> . NEWLINE timeout
-    (17) expression -> . NEWLINE exit
-
-  ! shift/reduce conflict for NEWLINE resolved as shift
-    NEWLINE         shift and go to state 23
-
-  ! NEWLINE         [ reduce using rule 21 (case -> NEWLINE CASE STR expressions .) ]
-
-    expression                     shift and go to state 40
-WARNING: 
-WARNING: Conflicts:
-WARNING: 
-WARNING: shift/reduce conflict for NEWLINE in state 54 resolved as shift
-WARNING: shift/reduce conflict for NEWLINE in state 58 resolved as shift
-WARNING: shift/reduce conflict for NEWLINE in state 59 resolved as shift
