@@ -1,0 +1,20 @@
+script test
+variable
+    x real $100
+    y integer $100
+    z text "hello"
+end
+
+
+state start
+    speak "Hello, world!"
+    switch
+        case "hello" 
+            speak "hello"
+        case "bye" 
+            speak "bye"
+        case "exit" 
+            exit
+        default 
+            speak "default"
+end

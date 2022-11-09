@@ -9,7 +9,9 @@ class Node:
     def __init__(self, type, *child):
         self.type = type
         self.childs = list(child)
-        
+    
+    def __str__(self) -> str:
+        return self.type
     def print(self, indent=0):
         """
             print the AST
@@ -25,30 +27,35 @@ class Node:
                 child.print(indent + 1)
         
 class Parser:
-    def __init__(self, lexer:Lexer): #TODO add config
+    def __init__(self, lexer:Lexer, debug=False): #TODO add config
         self._lexer = lexer
         self.tokens = lexer.tokens
         self._yacc = yacc(module=self, debug=True)
+        self.debug = debug
     
-    def parse(self, line):
+    def parse(self, script):
         """
-            parse a line
-            @param line: the line to parse
+            parse a script
+            @param script: the script to parse
         """
-        return self._yacc.parse(line, self._lexer.getLexer())
+        return self._yacc.parse(script, self._lexer.getLexer())
     
     start = 'script'
     def p_script(self, p):
         '''
-        script : SCRIPT ID variables states
+        script : SCRIPT ID variables NEWLINE states
         '''
-        p[0] = Node('script', p[2], p[3], *p[4])
+        p[0] = Node(('script', p[2]), p[3], p[4+1])
+    
+    
     
     def p_variables(self, p):
         '''
-        variables : VARIABLE vars
+        variables : NEWLINE VARIABLE vars END
         '''
-        p[0] = Node(('variables'), *p[2])
+        p[0] = Node(('variables'), *p[3])
+        if(self.debug):
+            print("variables: ", p[0].childs)
     def p_vars(self, p):
         '''
         vars : var
@@ -58,14 +65,16 @@ class Parser:
             p[0] = [p[1]]
         else:
             p[0] = p[1] + [p[2]]
+        if self.debug:
+            print("vars: ", *p[0])
     
     def p_var(self, p):
         '''
-        var : ID REAL VAR
-                | ID INTEGER VAR
-                | ID TEXT STR
+        var : NEWLINE ID REAL VAR
+                | NEWLINE ID INTEGER VAR
+                | NEWLINE ID TEXT STR
         '''
-        p[0] = Node('var', p[1], p[2], p[3])
+        p[0] = Node('var', p[1+1], p[2+1], p[3+1])
     
     def p_states(self, p):
         '''
@@ -73,15 +82,17 @@ class Parser:
                 | states state
         '''
         if len(p) == 2:
-            p[0] = [p[1]]
+            #p[0] = [p[1]]
+            p[0] = Node('states', p[1])
         else:
-            p[0] = p[1] + [p[2]]
+            #p[0] = p[1] + [p[2]]
+            p[0] = Node('states', *p[1].child, p[2])
     
     def p_state(self, p):
         '''
-        state : STATE ID expressions
+        state : NEWLINE STATE ID expressions END
         '''
-        p[0] = Node('state', p[2], *p[3]) # where p[3] is a list of expression AST Nodes.
+        p[0] = Node(('state', p[2+1]), *p[3+1]) # where p[3] is a list of expression AST Nodes.
         
     def p_expressions(self, p):
         '''
@@ -95,20 +106,19 @@ class Parser:
             
     def p_expression(self, p):
         '''
-        expression : switch
-                    | speak
-                    | goto
-                    | timeout
-                    | default
-                    | exit
+        expression : NEWLINE switch
+                    | NEWLINE speak
+                    | NEWLINE goto
+                    | NEWLINE timeout
+                    | NEWLINE exit
         '''
-        p[0] = p[1]
+        p[0] = p[2]
     
     def p_switch(self, p):
         '''
-        switch : SWITCH cases
+        switch : SWITCH cases NEWLINE default
         '''
-        p[0] = Node('switch', *p[2])
+        p[0] = Node('switch', *p[2], p[4])
     def p_cases(self, p):
         '''
         cases : case
@@ -121,9 +131,9 @@ class Parser:
             
     def p_case(self, p):
         '''
-        case : CASE STR expressions 
+        case : NEWLINE CASE STR expressions 
         '''
-        p[0] = Node('case', p[2], *p[3])
+        p[0] = Node('case', p[2+1], *p[3+1])
         
     def p_speak(self, p):
         '''
@@ -183,22 +193,10 @@ class Parser:
     
 if __name__ == '__main__':
     lexer = Lexer()
-    parser = Parser(lexer)
-    node = parser.parse('''
-    script test
-    variable
-        x real $100
-        y integer $100
-        z text "hello"
-    
-    state start
-        switch
-            case "hello" speak "hello"
-            case "bye" speak "bye"
-            case "exit" exit
-            default speak "default"
-    state end
-        timeout $10 goto start
-    ''')
+    parser = Parser(lexer, debug=True)
+    with open('test.txt') as f:
+        script = f.read()
+        
+    node = parser.parse(script)
     node.print()
     

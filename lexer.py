@@ -17,16 +17,20 @@ class Lexer:
         "timeout": "TIMEOUT",
         "speak": "SPEAK",
         "script": "SCRIPT",
+        "end": "END",
+        #"endcase": "ENDCASE",
+        #"endstate": "ENDSTATE",
+        #"endvariable": "ENDVARIABLE",
         #"endstate": "ENDSTATE",
         "exit": "EXIT",
     }
     tokens = [
-        #"NEWLINE",
+        "NEWLINE",
         "ID",
         "VAR",
         "STR",
     ] + list(keywords.values())
-    t_ignore = ' \t\n'
+    t_ignore = ' \t'
     
     literals = ['+', '-', '=']
     
@@ -92,10 +96,10 @@ class Lexer:
         t.value = t.value[1:-1]
         return t
     
-    # def t_NEWLINE(self, t):
-    #     r'\n+'
-    #     t.lexer.lineno += len(t.value)
-    #     return t
+    def t_NEWLINE(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+        return t
     
     def t_error(self, t):
         print(f"Unknown character {t.value[0]}")
@@ -110,22 +114,7 @@ class Lexer:
 if __name__ == "__main__":
     lexer = Lexer()
     #lexer.load_str("test variable test $123 \"123\"")
-    lexer.load_str(
-    '''
-    script test
-    variable
-        x real $100
-        y integer $100
-        z text $"hello"
-    
-    state start
-        case "hello" speak "hello"
-        case "bye" speak "bye"
-        case "exit" exit
-        default speak "default"
-    state end
-        timeout $10 goto start
-    ''')
+    lexer.load_script("test.txt")
     token = lexer.token()
     while token:
         print(token)
