@@ -2,7 +2,7 @@ from ply.yacc import yacc
 from lexer import Lexer
 
 
-class Node:
+class ASTNode:
     """
         Abstract syntax tree node
     """
@@ -18,13 +18,13 @@ class Node:
         """
         print('  ' * indent, self.type)
         for child in self.childs:
-            if isinstance(child, str):
-                print('  ' * (indent+1), "str: ",child)
-            elif isinstance(child, list):
-                 for c in child:
-                     c.print(indent + 1)
-            else:
-                child.print(indent + 1)
+            # if isinstance(child, str):
+            #     print('  ' * (indent+1), "str: ",child)
+            # elif isinstance(child, list):
+            #      for c in child:
+            #          c.print(indent + 1)
+            # else:
+            child.print(indent + 1)
         
 class Parser:
     def __init__(self, lexer:Lexer, debug=False): #TODO add config
@@ -45,7 +45,7 @@ class Parser:
         '''
         script : SCRIPT ID variables states
         '''
-        p[0] = Node(('script', p[2]), p[3], p[4])
+        p[0] = ASTNode(('script', p[2]), p[3], p[4])
     
     
     
@@ -53,7 +53,7 @@ class Parser:
         '''
         variables : VARIABLE vars ENDVARIABLE
         '''
-        p[0] = Node(('variables'), *p[2])
+        p[0] = ASTNode(('variables'), *p[2])
         if(self.debug):
             print("variables: ", p[0].childs)
     def p_vars(self, p):
@@ -74,7 +74,7 @@ class Parser:
                 | ID INTEGER VAR
                 | ID TEXT STR
         '''
-        p[0] = Node(('var', p[1]), p[2], p[3])
+        p[0] = ASTNode(('var', p[1], p[2], p[3]))
     
     def p_states(self, p):
         '''
@@ -83,16 +83,16 @@ class Parser:
         '''
         if len(p) == 2:
             #p[0] = [p[1]]
-            p[0] = Node('states', p[1])
+            p[0] = ASTNode('states', p[1])
         else:
             #p[0] = p[1] + [p[2]]
-            p[0] = Node('states', *p[1].childs, p[2])
+            p[0] = ASTNode('states', *p[1].childs, p[2])
     
     def p_state(self, p):
         '''
         state : STATE ID expressions ENDSTATE
         '''
-        p[0] = Node(('state', p[2]), *p[3]) # where p[3] is a list of expression AST Nodes.
+        p[0] = ASTNode(('state', p[2]), *p[3]) # where p[3] is a list of expression AST Nodes.
         
     def p_expressions(self, p):
         '''
@@ -103,6 +103,9 @@ class Parser:
             p[0] = [p[1]] # where p[1] is an expression AST Node.
         else:
             p[0] = p[1] + [p[2]]
+            
+    #def p_expressions_switch(self, p):
+        
             
     def p_expression(self, p):
         '''
@@ -118,7 +121,7 @@ class Parser:
         '''
         switch : SWITCH cases default
         '''
-        p[0] = Node('switch', *p[2], p[3])
+        p[0] = ASTNode('switch', *p[2], p[3])
     def p_cases(self, p):
         '''
         cases : case
@@ -133,13 +136,13 @@ class Parser:
         '''
         case : CASE STR expressions 
         '''
-        p[0] = Node('case', p[2], *p[3])
+        p[0] = ASTNode(('case', p[2]), *p[3])
         
     def p_speak(self, p):
         '''
         speak : SPEAK terms
         '''
-        p[0] = Node('speak', p[2])
+        p[0] = ASTNode('speak', p[2])
     
     def p_terms(self, p):
         '''
@@ -147,45 +150,46 @@ class Parser:
                 | terms term
         '''
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = ASTNode('terms', p[1])
         else:
-            p[0] = p[1] + [p[2]]
+            p[0] = ASTNode('terms', *p[1].childs, p[2])
+            #p[0] = p[1] + [p[2]]
     
     def p_term_str(self, p):
         '''
         term : STR
         '''
-        p[0] = Node(('str', p[1]))
+        p[0] = ASTNode(('str', p[1]))
         
     def p_term_var(self, p):
         '''
         term : VAR
         '''
-        p[0] = Node(('var', p[1]))
+        p[0] = ASTNode(('var', p[1]))
         
     def p_goto(self, p):
         '''
         goto : GOTO ID
         '''
-        p[0] = Node('goto', p[2])
+        p[0] = ASTNode(('goto', p[2]))
         
     def p_timeout(self, p):
         '''
         timeout : TIMEOUT VAR expressions ENDTIMEOUT
         '''
-        p[0] = Node('timeout', p[2], *p[3])
+        p[0] = ASTNode(('timeout', p[2]), *p[3])
     
     def p_default(self, p):
         '''
         default : DEFAULT expressions ENDSWITCH
         '''
-        p[0] = Node('default', *p[2])
+        p[0] = ASTNode('default', *p[2])
         
     def p_exit(self, p):
         '''
         exit : EXIT
         '''
-        p[0] = Node('exit')
+        p[0] = ASTNode('exit')
         
     def p_error(self, p):
         print("Syntax error in input!")

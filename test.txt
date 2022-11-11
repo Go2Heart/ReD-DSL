@@ -6,15 +6,15 @@ variable
 endVariable
 
 
-state start
-    speak "Hello, world!"
+state welcome
+    speak "Hello, world!" "Hola, mundo!"
     switch
         case "hello" 
             speak "hello"
         case "bye" 
             speak "bye"
         case "exit" 
-            exit
+            goto goodbye
         default 
             speak "default"
     endSwitch
@@ -22,7 +22,13 @@ endState
 
 state goodbye
     speak "Goodbye, world!"
+    switch 
+        case "goodbye"
+            exit
+        default
+            speak "not quite understood"
+    endSwitch
     timeout $10 
-        goto start
+            goto start
     endTimeout
 endState
