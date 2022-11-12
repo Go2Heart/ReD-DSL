@@ -27,7 +27,7 @@ class CallBack(object):
         else:
             raise Exception("Unknown action type")
         
-    def __call__(self, event):
+    def __call__(self):
         return self.callback(*self.args)
         
     def __str__(self) -> str:
@@ -98,8 +98,13 @@ class StateMachine:
         state_name = state.type[1]
         for clause in state.childs:
             if clause.type == 'speak':
-                terms = clause.childs[0] # only one child
-                self.action_dict[state_name]['<on_enter>'] = CallBack(self._speak_action, terms)
+                speaks = clause.childs # only one child
+                for speak in speaks:
+                    try: 
+                        self.action_dict[state_name]['<on_enter>'].append(CallBack(self._speak_action, speak))
+                    except:
+                        self.action_dict[state_name]['<on_enter>'] = [CallBack(self._speak_action, speak)]
+                    
             elif clause.type == 'switch':
                 terms = clause.childs # for all cases, the action can only speak, goto, exit
                 for term in terms:
@@ -107,13 +112,6 @@ class StateMachine:
                         case_condition = term.type[1] if term.type[0] == 'case' else '<default>'
                         case_actions = term.childs
                         self._extract_actions(state_name, case_condition, case_actions)
-                        # for action in case_action:
-                        #     if action.type == 'speak':
-                        #         self.action_dict[state_name][case_condition] = self._speak_action(action.childs)
-                        #     elif action.type == 'exit':
-                        #         self.action_dict[state_name][case_condition] = 'exit'
-                        #     elif action.type[0] == 'goto':
-                        #         self.action_dict[state_name][case_condition] = self._goto_action(action.type[1])
             elif clause.type[0] == 'timeout':
                 timeout_condition = '<timeout>:' + clause.type[1]
                 actions = clause.childs
@@ -130,8 +128,8 @@ class StateMachine:
                 text += str(self.variables[term.type[1]])
             elif term.type[0] == 'str':
                 text += term.type[1]
-        if self.debug:
-            print(text)
+        #if self.debug:
+        print(text)
         return text
 
     def _goto_action(self, new_state):

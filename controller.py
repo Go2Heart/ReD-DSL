@@ -10,7 +10,7 @@ class Controller:
         self._lexer = lexer
         self._parser = paser
         self.debug = debug
-        self.state_machine = StateMachine(self._parser.parse(script), debug)
+        self.state_machine = StateMachine(self._parser.parse(script), debug=False)
         self.state_machine.interpret()
         self.action_table = self.state_machine.action_dict
         
@@ -22,13 +22,32 @@ class Controller:
         """
         # deal with the corresponding action of the condition and current_state
         next_state = current_state
-        for action in self.action_table[current_state][condition]:
-            if action.type == "goto":
-                next_state = action(condition)
-            elif action.type == "speak":
-                action(condition)
-            elif action.type == "exit":
-                action(condition)
+        if condition not in self.action_table[current_state].keys():
+            # perform the default action
+            for action in self.action_table[current_state]["<default>"]:
+                if action.type == "goto":
+                    next_state = action()
+                elif action.type == "speak":
+                    action()
+                elif action.type == "exit":
+                    action()
+        else:
+            for action in self.action_table[current_state][condition]:
+                if action.type == "goto":
+                    next_state = action()
+                elif action.type == "speak":
+                    action()
+                elif action.type == "exit":
+                    action()
+                
+        if next_state != current_state:
+            for action in self.action_table[next_state]["<on_enter>"]:
+                if action.type == "goto":
+                    next_state = action()
+                elif action.type == "speak":
+                    action()
+                elif action.type == "exit":
+                    action()
         return next_state
     
     
