@@ -8,30 +8,34 @@
 from parser import Parser, ASTNode
 from lexer import Lexer
 
-class Action(object):
-    """
-        Action class used to perform the actions of the DSL code
-    """
-    def speak(self, text):
-        print(text)
   
-class CallBack():
+class CallBack(object):
     """
         CallBack class used to perform the actions of the DSL code
     """
-    def __init__(self, callback, *args, **kwargs):
+    def __init__(self, callback, *args):
         self.callback = callback
         self.args = args
-        self.kwargs = kwargs
+        #self.kwargs = kwargs
+        self.type = ""
+        if self.callback.__name__ == "_speak_action":
+            self.type = "speak"
+        elif self.callback.__name__ == "_goto_action":
+            self.type = "goto"
+        elif self.callback.__name__ == "_exit_action":
+            self.type = "exit"
+        else:
+            raise Exception("Unknown action type")
         
     def __call__(self, event):
-        self.callback(event, *self.args, **self.kwargs)
+        return self.callback(*self.args)
         
     def __str__(self) -> str:
-        return f"CallBack({self.callback}, {self.args}, {self.kwargs})\n"
+        return f"CallBack({self.callback}, {self.args})\n"
     
     def __repr__(self) -> str:
-        return f"CallBack({self.callback}, {self.args}, {self.kwargs})\n"
+        #return f"CallBack({self.callback}, {self.args}, {self.kwargs})\n"
+        return f"CallBack({self.callback.__name__}, {self.args})\n"
 class StateMachine:
     """
         This class creates a state machine transition table
@@ -40,7 +44,7 @@ class StateMachine:
         self.AST = AST
         self.states_dict = dict()
         self.states_content = []
-        self.initial_state = None
+        self.initial_state = '<mono_begin>'
         self.debug = debug
         self.variables = dict()
         self.action_dict = dict()
@@ -63,7 +67,9 @@ class StateMachine:
                     self.states_dict[state.type[1]] = {} # create a dictionary for the state
                 if 'welcome' not in self.states_dict.keys():
                     raise Exception("No welcome state found. A welcome state is required.")
-                self.initial_state = 'welcome'
+                self.states_dict[self.initial_state] = {} 
+                self.action_dict[self.initial_state] = {} # create a action dictionary for the initial state
+                self.action_dict[self.initial_state]['<on_enter>'] = [CallBack(self._goto_action, 'welcome')]
                 if self.debug:
                     for state in self.states_content:
                         print(state.print())
@@ -126,31 +132,41 @@ class StateMachine:
                 text += term.type[1]
         if self.debug:
             print(text)
-        #return text
+        return text
 
     def _goto_action(self, new_state):
         """
             @brief: performs the goto action
             @param: new_state is the state to go to
         """
-        #return new_state
+        print("Going to state: " + new_state)
+        return new_state
     
     def _exit_action(self):
         """
             @brief: performs the exit action
         """
-        #return 'exit'
-        pass
+        print("Exiting")
+        return 'exit'
     
     def _extract_actions(self, current_state, condition, actions):
         for action in actions:
+            action_func = None
             if action.type == 'speak':
-                self.action_dict[current_state][condition] = CallBack(self._speak_action, action.childs[0])
+                action_func = CallBack(self._speak_action, action.childs[0])
+                #self.action_dict[current_state][condition] = CallBack(self._speak_action, action.childs[0])
             elif action.type == 'exit':
-                self.action_dict[current_state][condition] = CallBack(self._exit_action)
+                action_func = CallBack(self._exit_action)
+                #self.action_dict[current_state][condition] = CallBack(self._exit_action)
             elif action.type[0] == 'goto':
-                self.action_dict[current_state][condition] = CallBack(self._goto_action, action.type[1])
-
+                action_func = CallBack(self._goto_action, str(action.type[1]))
+                #self.action_dict[current_state][condition] = CallBack(self._goto_action, action.type[1])
+            else:
+                raise Exception("Invalid action")
+            if condition in self.action_dict[current_state].keys():
+                self.action_dict[current_state][condition].append(action_func)
+            else:
+                self.action_dict[current_state][condition] = [action_func]
     
     #def _extract_states(self):
     #    """

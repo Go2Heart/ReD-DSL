@@ -11,6 +11,7 @@ state welcome
     switch
         case "hello" 
             speak "hello"
+            goto welcome
         case "bye" 
             speak "bye"
         case "exit" 
