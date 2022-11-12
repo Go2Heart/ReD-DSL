@@ -172,6 +172,12 @@ class Parser:
         goto : GOTO ID
         '''
         p[0] = ASTNode(('goto', p[2]))
+    
+    # def p_id(self, p):
+    #     '''
+    #     id : ID
+    #     '''
+    #     p[0] = ASTNode(('id', p[1]))
         
     def p_timeout(self, p):
         '''
