@@ -7,10 +7,15 @@ endVariable
 
 
 state welcome
-    speak "Hello, world!" "Hola, mundo!"
+    speak "Hello, world " 
+    speak "Hola, mundo!" "Bonjour, monde!"
+    speak "Input balance to check your account's balance"
     switch
         case "hello" 
             speak "hello"
+            goto welcome
+        case "balance"
+            speak "Your balance is " x
             goto welcome
         case "bye" 
             speak "bye"
@@ -19,6 +24,10 @@ state welcome
         default 
             speak "default"
     endSwitch
+    timeout $10 
+        speak "You have been idle for 10 seconds. Restarting service ..."
+        goto welcome
+    endTimeout
 endState
 
 state goodbye
@@ -30,6 +39,6 @@ state goodbye
             speak "not quite understood"
     endSwitch
     timeout $10 
-            goto start
+            goto welcome
     endTimeout
 endState

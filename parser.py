@@ -166,6 +166,12 @@ class Parser:
         term : VAR
         '''
         p[0] = ASTNode(('var', p[1]))
+    
+    def p_term_id(self, p):
+        '''
+        term : ID
+        '''
+        p[0] = ASTNode(('id', p[1]))
         
     def p_goto(self, p):
         '''

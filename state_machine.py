@@ -113,7 +113,7 @@ class StateMachine:
                         case_actions = term.childs
                         self._extract_actions(state_name, case_condition, case_actions)
             elif clause.type[0] == 'timeout':
-                timeout_condition = '<timeout>:' + clause.type[1]
+                timeout_condition = '<on_timeout>:' + clause.type[1]
                 actions = clause.childs
                 self._extract_actions(state_name, timeout_condition, actions)
                       
@@ -124,10 +124,12 @@ class StateMachine:
         """
         text = ""
         for term in terms.childs:
-            if term.type[0] == 'var': # query the variables database
+            if term.type[0] == 'id': # query the variables database
                 text += str(self.variables[term.type[1]])
             elif term.type[0] == 'str':
                 text += term.type[1]
+            elif term.type[0] == 'var':
+                text += str(term.type[1])
         #if self.debug:
         print(text)
         return text

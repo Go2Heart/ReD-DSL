@@ -22,11 +22,14 @@ class Controller:
         """
         # deal with the corresponding action of the condition and current_state
         next_state = current_state
+        is_transferred = False
         if condition not in self.action_table[current_state].keys():
             # perform the default action
             for action in self.action_table[current_state]["<default>"]:
                 if action.type == "goto":
                     next_state = action()
+                    is_transferred = True
+                    break
                 elif action.type == "speak":
                     action()
                 elif action.type == "exit":
@@ -35,12 +38,14 @@ class Controller:
             for action in self.action_table[current_state][condition]:
                 if action.type == "goto":
                     next_state = action()
+                    is_transferred = True
+                    break
                 elif action.type == "speak":
                     action()
                 elif action.type == "exit":
                     action()
                 
-        if next_state != current_state:
+        if is_transferred:
             for action in self.action_table[next_state]["<on_enter>"]:
                 if action.type == "goto":
                     next_state = action()
