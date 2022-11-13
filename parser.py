@@ -172,6 +172,7 @@ class Parser:
         term : ID
         '''
         p[0] = ASTNode(('id', p[1]))
+    
         
     def p_goto(self, p):
         '''

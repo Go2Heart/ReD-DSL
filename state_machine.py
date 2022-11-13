@@ -167,30 +167,7 @@ class StateMachine:
                 self.action_dict[current_state][condition].append(action_func)
             else:
                 self.action_dict[current_state][condition] = [action_func]
-    
-    #def _extract_states(self):
-    #    """
-    #        Extracts the states from the AST
-    #    """
-    #    for child in self.AST.childs:
-    #        if child.type == 'states':
-    #            for state in child.childs:
-    #                if self.debug:
-    #                    print(state)
-    #                self.states.append({'name' : state.type[1]}) # Save the states in the list
-    #                self.states_content.append(state) # Save the states content in the list
-    #    if {'name' : 'welcome'} not in self.states:
-    #        raise Exception("No welcome state found. A welcome state is required.")
-    #    self.initial_state = 'welcome'
-    #    if self.debug:
-    #        print("States: ", self.states)
-    #        for state in self.states_content:
-    #            print(state.print())
-    #def _extract_transitions(self):
-    #    """
-    #        Extracts the transitions from the AST
-    #    """
-        
+
                     
 if __name__ == "__main__":
     lexer = Lexer()
