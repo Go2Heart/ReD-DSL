@@ -38,7 +38,7 @@ if __name__ == "__main__":
     current_state = controller.state_machine.initial_state
     current_state = controller.accept_condition(current_state, "<on_enter>")
     while True:
-        print("Current state: ", current_state)
+        #print("Current state: ", current_state)
         try:
             condition = input_with_timeout(None, 10)
             current_state = controller.accept_condition(

@@ -8,8 +8,10 @@ endVariable
 
 state welcome
     speak "Hello, welcome to the test script"
-    speak "Input balance to check your account's balance"
-    speak "Input topup to top up your account"
+    speak "Input [balance] to check your account's balance"
+    speak "Input [topup] to top up your account"
+    speak "Input [withdraw] to withdraw money from your account"
+    speak "Input [exit] to exit the script"
     switch
         case "hello" 
             speak "hello"
@@ -19,16 +21,34 @@ state welcome
             goto welcome
         case "topup" 
             goto topup
+        case "withdraw"
+            goto withdraw
         case "exit" 
             goto goodbye
         default 
-            speak "default"
+            speak "Unknown command, please try again"
+            goto welcome
     endSwitch
     timeout $10 
         speak "You have been idle for 10 seconds. Restarting service ..."
         goto welcome
     endTimeout
 endState
+
+state withdraw
+    speak "How much would you like to withdraw?"
+    switch
+        case _return
+            speak "You have withdrawn " + _return + " dollars"
+            update x = x MINUS _return
+            goto welcome
+    endSwitch
+    timeout $10 
+        speak "You have been idle for 10 seconds. Restarting service ..."
+        goto welcome
+    endTimeout
+endState
+
 
 state topup
     speak "How much would you like to top up?"

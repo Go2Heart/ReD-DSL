@@ -171,9 +171,9 @@ class StateMachine:
         """
         if calculation.type[0] == 'calc':
             if calculation.type[1] == 'PLUS':
-                self.variables[id][1] = int(self._get_value(calculation.childs[0])) + int(self._get_value(calculation.childs[1]))
+                self.variables[id][1] = float(self._get_value(calculation.childs[0])) + float(self._get_value(calculation.childs[1]))
             elif calculation.type[1] == 'MINUS':
-                self.variables[id][1] = int(self._get_value(calculation.childs[0])) - int(self._get_value(calculation.childs[1]))
+                self.variables[id][1] = float(self._get_value(calculation.childs[0])) - float(self._get_value(calculation.childs[1]))
             else:
                 raise Exception("Unknown calculation type")
         else:
