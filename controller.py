@@ -13,6 +13,7 @@ class Controller:
         self.state_machine = StateMachine(self._parser.parse(script), debug=False)
         self.state_machine.interpret()
         self.action_table = self.state_machine.action_dict
+        self._return = ""
         
     def accept_condition(self, current_state:str, condition:str) -> str:
         """
@@ -23,17 +24,40 @@ class Controller:
         # deal with the corresponding action of the condition and current_state
         next_state = current_state
         is_transferred = False
+        self._return = condition
+        self.state_machine._interpret_variable(('_return', '_return', 'text', condition))
         if condition not in self.action_table[current_state].keys():
-            # perform the default action
-            for action in self.action_table[current_state]["<default>"]:
-                if action.type == "goto":
-                    next_state = action()
-                    is_transferred = True
-                    break
-                elif action.type == "speak":
-                    action()
-                elif action.type == "exit":
-                    action()
+            if '_return' in self.action_table[current_state].keys(): # if there is a return condition
+                for action in self.action_table[current_state]['_return']:
+                    if action.type == "goto":
+                        next_state = action()
+                        is_transferred = True
+                        break
+                    elif action.type == "speak":
+                        action()
+                    elif action.type == "exit":
+                        action()
+                    elif action.type == "update":
+                        action()
+                    else:
+                        raise Exception("Invalid action")
+            elif '<default>' in self.action_table[current_state].keys(): # if there is a default condition
+                # perform the default action
+                for action in self.action_table[current_state]["<default>"]:
+                    if action.type == "goto":
+                        next_state = action()
+                        is_transferred = True
+                        break
+                    elif action.type == "speak":
+                        action()
+                    elif action.type == "exit":
+                        action()
+                    elif action.type == "update":
+                        action()
+                    else:
+                        raise Exception("Invalid action")
+            else:
+                raise Exception("Invalid condition")
         else:
             for action in self.action_table[current_state][condition]:
                 if action.type == "goto":
@@ -44,6 +68,10 @@ class Controller:
                     action()
                 elif action.type == "exit":
                     action()
+                elif action.type == "update":
+                        action()
+                else:
+                    raise Exception("Invalid action")
                 
         if is_transferred:
             for action in self.action_table[next_state]["<on_enter>"]:
@@ -53,6 +81,10 @@ class Controller:
                     action()
                 elif action.type == "exit":
                     action()
+                elif action.type == "update":
+                        action()
+                else:
+                    raise Exception("Invalid action")
         return next_state
     
     

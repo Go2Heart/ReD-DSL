@@ -7,22 +7,36 @@ endVariable
 
 
 state welcome
-    speak "Hello, world " 
-    speak "Hola, mundo!" "Bonjour, monde!"
+    speak "Hello, welcome to the test script"
     speak "Input balance to check your account's balance"
+    speak "Input topup to top up your account"
     switch
         case "hello" 
             speak "hello"
             goto welcome
         case "balance"
-            speak "Your balance is " x
+            speak "Your balance is " + x
             goto welcome
-        case "bye" 
-            speak "bye"
+        case "topup" 
+            goto topup
         case "exit" 
             goto goodbye
         default 
             speak "default"
+    endSwitch
+    timeout $10 
+        speak "You have been idle for 10 seconds. Restarting service ..."
+        goto welcome
+    endTimeout
+endState
+
+state topup
+    speak "How much would you like to top up?"
+    switch
+        case _return
+            speak "You have topped up " + _return + " dollars"
+            update x = x PLUS _return
+            goto welcome
     endSwitch
     timeout $10 
         speak "You have been idle for 10 seconds. Restarting service ..."

@@ -114,8 +114,15 @@ class Parser:
                     | goto
                     | timeout
                     | exit
+                    | update
         '''
         p[0] = p[1]
+        
+    def p_update(self, p):
+        '''
+        update : UPDATE ID '=' terms
+        '''
+        p[0] = ASTNode(('update', p[2]), p[4])
     
     def p_switch(self, p):
         '''
@@ -135,6 +142,7 @@ class Parser:
     def p_case(self, p):
         '''
         case : CASE STR expressions 
+                | CASE RETURN expressions
         '''
         p[0] = ASTNode(('case', p[2]), *p[3])
         
@@ -147,14 +155,16 @@ class Parser:
     def p_terms(self, p):
         '''
         terms : term
-                | terms term
+                | terms '+' term
+                | term PLUS term
+                | term MINUS term
         '''
         if len(p) == 2:
             p[0] = ASTNode('terms', p[1])
+        elif p[2] == '+':
+            p[0] = ASTNode('terms', *p[1].childs, p[3])
         else:
-            p[0] = ASTNode('terms', *p[1].childs, p[2])
-            #p[0] = p[1] + [p[2]]
-    
+            p[0] = ASTNode(('calc', p[2]), p[1], p[3])
     def p_term_str(self, p):
         '''
         term : STR
@@ -172,6 +182,12 @@ class Parser:
         term : ID
         '''
         p[0] = ASTNode(('id', p[1]))
+        
+    def p_term_return(self, p):
+        '''
+        term : RETURN
+        '''
+        p[0] = ASTNode(('<return>', p[1]))
     
         
     def p_goto(self, p):
@@ -195,8 +211,12 @@ class Parser:
     def p_default(self, p):
         '''
         default : DEFAULT expressions ENDSWITCH
+                    | ENDSWITCH
         '''
-        p[0] = ASTNode('default', *p[2])
+        if len(p) == 2:
+            p[0] = ASTNode('default_empty')
+        else:
+            p[0] = ASTNode('default', *p[2])
         
     def p_exit(self, p):
         '''
