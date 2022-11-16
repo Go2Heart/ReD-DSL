@@ -56,12 +56,12 @@ def send():
         if state is None or state == '':
             state = controller.state_machine.initial_state
         
-        next_state, output = controller.accept_condition(state, msg, user["username"])
+        next_state, output, timeout = controller.accept_condition(state, msg, user["username"])
         print(output)
     except Exception as e:
         print(e)
         return jsonify({"msg": "An exception has taken place, please try again!"}), 400
-    return jsonify({"msg":output, "next_state": next_state}), 200
+    return jsonify({"msg":output, "next_state": next_state, "timeout": timeout}), 200
 
 @app.route("/register")
 @cross_origin()

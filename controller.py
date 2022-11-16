@@ -52,7 +52,6 @@ class Controller:
         is_transferred = False
         self._return = condition
         self.state_machine._update_return_value(condition, username)
-        #self.state_machine._interpret_variable(('_return', '_return', 'text', condition))
         if condition not in self.action_table[current_state].keys():
             if '_return' in self.action_table[current_state].keys(): # if there is a return condition
                 for action in self.action_table[current_state]['_return']:
@@ -116,7 +115,8 @@ class Controller:
                     action(username)
                 else:
                     raise Exception("Invalid action")
-        return next_state, output
+        timeout = self.state_machine.action_dict[next_state].get("<timeout_value>", None)
+        return next_state, output, timeout
     
     
                     
