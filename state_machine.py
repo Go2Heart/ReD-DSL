@@ -103,7 +103,22 @@ class StateMachine:
             store.add(UserVariableSet("Guest", ''))  # add a guest user
             store.commit()
             store.close()
-        
+    
+    def _register(self, username, passwd):
+        """
+            @brief: registers a new user
+            @param: username is the username of the new user
+            @param: passwd is the password of the new user
+        """
+        global database, db_lock
+        with db_lock:
+            store = Store(database)
+            if store.get(UserVariableSet, UserVariableSet.username == username) is not None:
+                raise Exception("User already exists")
+            store.add(UserVariableSet(username, passwd))
+            store.commit()
+            store.close()
+        return "Registered"
             
     def interpret(self):
         for declaration in self.AST.childs:

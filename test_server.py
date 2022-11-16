@@ -25,7 +25,7 @@ def test_input(current_state):
         @brief: test input function using threading
     """
     input_string = input()
-    current_state = controller.accept_condition(current_state, input_string)
+    current_state = controller.accept_condition(current_state, input_string, "test")
 
 
 if __name__ == "__main__":
@@ -33,16 +33,17 @@ if __name__ == "__main__":
     parser = Parser(lexer, debug=False)
     with open("test.txt", "r") as f:
         script = f.read()
-    controller = Controller(lexer, parser, script, debug=True, username="Guest")
+    controller = Controller(lexer, parser, script, debug=True)
+    controller.register("test", "test")
     input_string = ""
     current_state = controller.state_machine.initial_state
-    current_state = controller.accept_condition(current_state, "<on_enter>")
+    current_state = controller.accept_condition(current_state, "<on_enter>", "test")
     while True:
         #print("Current state: ", current_state)
         try:
             condition = input_with_timeout(None, 10)
             current_state = controller.accept_condition(
-                current_state, condition)
+                current_state, condition, "test")
         except TimeoutError:
             current_state = controller.accept_condition(
-                current_state, "<on_timeout>:10")
+                current_state, "<on_timeout>:10", "test")
