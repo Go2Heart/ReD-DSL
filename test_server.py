@@ -37,13 +37,13 @@ if __name__ == "__main__":
     controller.register("test", "test")
     input_string = ""
     current_state = controller.state_machine.initial_state
-    current_state = controller.accept_condition(current_state, "<on_enter>", "test")
+    current_state,output = controller.accept_condition(current_state, "<on_enter>", "test")
     while True:
         #print("Current state: ", current_state)
         try:
             condition = input_with_timeout(None, 10)
-            current_state = controller.accept_condition(
+            current_state,output = controller.accept_condition(
                 current_state, condition, "test")
         except TimeoutError:
-            current_state = controller.accept_condition(
+            current_state,output = controller.accept_condition(
                 current_state, "<on_timeout>:10", "test")

@@ -28,7 +28,7 @@ class Controller:
             raise e
         return True
     
-    def accept_condition(self, current_state:str, condition:str, username="Guest") -> str:
+    def accept_condition(self, current_state:str, condition:str, username="Guest"):
         """
             @brief: accepts a condition, peforms the required action and returns the next state
             @param: condition is the condition to check
@@ -36,6 +36,7 @@ class Controller:
         """
         # deal with the corresponding action of the condition and current_state
         next_state = current_state
+        output = ""
         is_transferred = False
         self._return = condition
         self.state_machine._update_return_value(condition, username)
@@ -48,7 +49,8 @@ class Controller:
                         is_transferred = True
                         break
                     elif action.type == "speak":
-                        action(username)
+                        output += action(username)
+                        output += "\n"
                     elif action.type == "exit":
                         action()
                     elif action.type == "update":
@@ -63,7 +65,8 @@ class Controller:
                         is_transferred = True
                         break
                     elif action.type == "speak":
-                        action(username)
+                        output += action(username)
+                        output += "\n"
                     elif action.type == "exit":
                         action()
                     elif action.type == "update":
@@ -79,7 +82,8 @@ class Controller:
                     is_transferred = True
                     break
                 elif action.type == "speak":
-                    action(username)
+                    output += action(username)
+                    output += "\n"
                 elif action.type == "exit":
                     action()
                 elif action.type == "update":
@@ -92,14 +96,15 @@ class Controller:
                 if action.type == "goto":
                     next_state = action()
                 elif action.type == "speak":
-                    action(username)
+                    output += action(username)
+                    output += "\n"
                 elif action.type == "exit":
                     action()
                 elif action.type == "update":
                     action(username)
                 else:
                     raise Exception("Invalid action")
-        return next_state
+        return next_state, output
     
     
                     
