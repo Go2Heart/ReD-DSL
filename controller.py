@@ -28,6 +28,18 @@ class Controller:
             raise e
         return True
     
+    def login(self, username:str, password:str):
+        """
+            @brief: login a user
+            @param: username is the username of the user
+            @param: password is the password of the user
+        """
+        try:
+            self.state_machine._login(username, password)
+        except Exception as e:
+            raise e
+        return True
+    
     def accept_condition(self, current_state:str, condition:str, username="Guest"):
         """
             @brief: accepts a condition, peforms the required action and returns the next state

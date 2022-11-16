@@ -84,7 +84,6 @@ class StateMachine:
             os.remove(path)
         database = create_database("sqlite:" + path)
         db_lock = Lock()
-        
         create_table_statement = ["CREATE TABLE user_variable (username TEXT PRIMARY KEY, passwd TEXT"]
         for k,v  in self.variables.items():
             if v[0] == 'integer':
@@ -104,21 +103,6 @@ class StateMachine:
             store.commit()
             store.close()
     
-    def _register(self, username, passwd):
-        """
-            @brief: registers a new user
-            @param: username is the username of the new user
-            @param: passwd is the password of the new user
-        """
-        global database, db_lock
-        with db_lock:
-            store = Store(database)
-            if store.get(UserVariableSet, UserVariableSet.username == username) is not None:
-                raise Exception("User already exists")
-            store.add(UserVariableSet(username, passwd))
-            store.commit()
-            store.close()
-        return "Registered"
             
     def interpret(self):
         for declaration in self.AST.childs:
@@ -144,7 +128,7 @@ class StateMachine:
             self.action_dict[state.type[1]] = {} # keys should be user events
             self._interpret_state(state)
     
-    
+
     def _interpret_variable(self, var):
         """
             @brief: interprets a variable declaration and adds it to the variables database
@@ -308,6 +292,40 @@ class StateMachine:
                 self.action_dict[current_state][condition].append(action_func)
             else:
                 self.action_dict[current_state][condition] = [action_func]
+                
+    def _register(self, username, passwd):
+        """
+            @brief: registers a new user
+            @param: username is the username of the new user
+            @param: passwd is the password of the new user
+        """
+        global database, db_lock
+        with db_lock:
+            store = Store(database)
+            if store.get(UserVariableSet, username) is not None:
+                raise Exception("User already exists")
+            store.add(UserVariableSet(username, passwd))
+            store.commit()
+            store.close()
+        return "Registered"
+    
+    def _login(self, username, passwd):
+        """
+            @brief: logs in a user
+            @param: username is the username of the user
+            @param: passwd is the password of the user
+            @return: True if the user is logged in, Exception otherwise
+        """
+        global database, db_lock
+        with db_lock:
+            store = Store(database)
+            user = store.get(UserVariableSet, username)
+            if user is None:
+                raise Exception("User does not exist")
+            if user.passwd != passwd:
+                raise Exception("Incorrect password")
+            store.close()
+        return True
 
                     
 if __name__ == "__main__":

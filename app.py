@@ -11,22 +11,9 @@ import select
 import sys
 
 
-def input_with_timeout(prompt, timeout):
-    if prompt is not None:
-        sys.stdout.write(prompt)
-    sys.stdout.flush()
-    ready, _, _ = select.select([sys.stdin], [], [], timeout)
-    if ready:
-        return sys.stdin.readline().rstrip('\n')  # expect stdin to be line-buffered
-    raise TimeoutError
+secret = "secret"
 
 
-def test_input(current_state):
-    """
-        @brief: test input function using threading
-    """
-    input_string = input()
-    current_state = controller.accept_condition(current_state, input_string, "test")
 
 
 app = Flask(__name__)
@@ -49,7 +36,7 @@ def connect():
         @brief: this is the connection test
     """
     username = "test"
-    token = jwt.encode({"username": username}, "secret", algorithm="HS256")  
+    token = jwt.encode({"username": username}, secret, algorithm="HS256")  
     return jsonify({"username": username, "token": token }), 200
 
 @app.route("/send")
@@ -65,14 +52,53 @@ def send():
         msg = request.args["msg"]
         state = request.args["state"]
         token = request.args["token"]
-        user = jwt.decode(token, "secret", algorithms=["HS256"])
+        user = jwt.decode(token, secret, algorithms=["HS256"])
         if state is None or state == '':
             state = controller.state_machine.initial_state
         
         next_state, output = controller.accept_condition(state, msg, user["username"])
         print(output)
     except Exception as e:
-        abort(400)
-        pass
-    #return {"msg":output, "next_state": next_state}
+        print(e)
+        return jsonify({"msg": "An exception has taken place, please try again!"}), 400
     return jsonify({"msg":output, "next_state": next_state}), 200
+
+@app.route("/register")
+@cross_origin()
+def register():
+    """
+        @brief: this is the register api
+        @param: {"username" : "some username", "password": "some password"}
+        @return {"username": "some username", "token": "some token"}
+        @note: if the username is already taken, return 400
+    """
+    try:
+        username = request.args["username"]
+        password = request.args["password"]
+        controller.register(username, password)
+        token = jwt.encode({"username": username}, secret, algorithm="HS256")
+        msg = "Welcome to the game, " + username + "!"
+    except Exception as e:
+        print(e)
+        return jsonify({"msg": str(e)}), 400
+    return jsonify({"username": username, "token": token , "msg": msg}), 200
+
+@app.route("/login")
+@cross_origin()
+def login():
+    """
+        @brief: this is the login api
+        @param: {"username" : "some username", "password": "some password"}
+        @return {"username: "some username", "token": "some token"}
+        @note: if the username or password is wrong, return 400
+    """   
+    try:
+        username = request.args["username"]
+        password = request.args["password"]
+        controller.login(username, password)
+        token = jwt.encode({"username": username}, secret, algorithm="HS256")
+        msg = "Welcome back, " + username + "!"
+    except Exception as e:
+        print(e)
+        return jsonify({"msg": str(e)}), 400
+    return jsonify({"username": username, "token": token ,"msg": msg}), 200
