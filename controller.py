@@ -1,6 +1,6 @@
 from parser import Parser, ASTNode
 from lexer import Lexer
-from state_machine import StateMachine, CallBack
+from interpreter import StateMachine, CallBack
 
 class Controller:
     """
