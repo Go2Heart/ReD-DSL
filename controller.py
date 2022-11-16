@@ -6,13 +6,15 @@ class Controller:
     """
         @breif: Controller class for the State machine, acts as the interface between the state machine and the user
     """
-    def __init__(self, lexer:Lexer, paser:Parser, script, debug=False):
+    def __init__(self, lexer:Lexer, paser:Parser, script, debug=False, username="Guest"):
         self._lexer = lexer
         self._parser = paser
         self.debug = debug
         self.state_machine = StateMachine(self._parser.parse(script), debug=False)
         self.state_machine.interpret()
+        self.state_machine.build_database("./database.db")
         self.action_table = self.state_machine.action_dict
+        self.username = username
         self._return = ""
         
     def accept_condition(self, current_state:str, condition:str) -> str:
@@ -25,7 +27,8 @@ class Controller:
         next_state = current_state
         is_transferred = False
         self._return = condition
-        self.state_machine._interpret_variable(('_return', '_return', 'text', condition))
+        self.state_machine._update_return_value(condition, self.username)
+        #self.state_machine._interpret_variable(('_return', '_return', 'text', condition))
         if condition not in self.action_table[current_state].keys():
             if '_return' in self.action_table[current_state].keys(): # if there is a return condition
                 for action in self.action_table[current_state]['_return']:
@@ -38,7 +41,7 @@ class Controller:
                     elif action.type == "exit":
                         action()
                     elif action.type == "update":
-                        action()
+                        action() ## TODO add user info BREAKPOINT
                     else:
                         raise Exception("Invalid action")
             elif '<default>' in self.action_table[current_state].keys(): # if there is a default condition
@@ -82,7 +85,7 @@ class Controller:
                 elif action.type == "exit":
                     action()
                 elif action.type == "update":
-                        action()
+                    action()
                 else:
                     raise Exception("Invalid action")
         return next_state

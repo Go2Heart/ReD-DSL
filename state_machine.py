@@ -5,10 +5,29 @@
         2. Extracts the transitions of DSL code and creates a transition
         3. Extracts the actions of DSL code and creates a action
 """
+import os
 from parser import Parser, ASTNode
 from lexer import Lexer
+from storm.locals import create_database, Store
+from storm.properties import Unicode, Int, Float
+from threading import Lock
 
-  
+
+class UserVariableSet(object):
+    """
+        @brief: creates a new user variable set
+    """
+    __storm_table__ = 'user_variable'
+    column_type = {"username": "Text", "passwd": "Text"}
+    username = Unicode(primary=True)
+    passwd = Unicode()
+
+    def __init__(self, username: str, passwd: str):
+        self.username = username
+        self.passwd = passwd
+
+
+
 class CallBack(object):
     """
         CallBack class used to perform the actions of the DSL code
@@ -29,11 +48,11 @@ class CallBack(object):
         else:
             raise Exception("Unknown action type")
         
-    def __call__(self): 
-        return self.callback(*self.args)
+    def __call__(self, *args): 
+        return self.callback(*self.args,*args)
     
     def call(self, *args): #used for the later input of the arguments
-        return self.callback(*args)
+        return self.callback(*self.args,*args)
     
     def __str__(self) -> str:
         return f"CallBack({self.callback}, {self.args})\n"
@@ -58,12 +77,39 @@ class StateMachine:
     def __str__(self):
         return "States: " + str(self.states_dict) + "\nAction Table: " + str(self.action_dict) + "\nInitial State: " + str(self.initial_state) + "\nVariables: " + str(self.variables)
     
+    def build_database(self, path):
+        global database, db_lock
+        dir, file_name = os.path.split(path)
+        if file_name in os.listdir(dir):
+            os.remove(path)
+        database = create_database("sqlite:" + path)
+        db_lock = Lock()
+        
+        create_table_statement = ["CREATE TABLE user_variable (username TEXT PRIMARY KEY, passwd TEXT"]
+        for k,v  in self.variables.items():
+            if v[0] == 'integer':
+                setattr(UserVariableSet, k, Int(default=int(v[1])))
+            elif v[0] == 'real':
+                setattr(UserVariableSet, k, Float(default=float(v[1])))
+            elif v[0] == 'text':
+                setattr(UserVariableSet, k, Unicode(default=v[1]))
+            UserVariableSet.column_type[k] = v[0]
+            create_table_statement.append(k + " " + v[0])
+        setattr(UserVariableSet, "_return", Unicode(default=""))
+        create_table_statement.append("_return TEXT")
+        with db_lock:
+            store = Store(database)
+            store.execute(','.join(create_table_statement) + ')')
+            store.add(UserVariableSet("Guest", ''))  # add a guest user
+            store.commit()
+            store.close()
+        
+            
     def interpret(self):
         for declaration in self.AST.childs:
             if declaration.type == 'variables':
                 for var in declaration.childs:
                     self._interpret_variable(var.type)
-                #TODO add to variables databases
             elif declaration.type == 'states':
                 for state in declaration.childs:
                     if self.debug:
@@ -125,24 +171,26 @@ class StateMachine:
                 print(clause)
                 raise Exception("Unknown clause type")
                       
-    def _speak_action(self, terms):
+    def _speak_action(self, terms, username="Guest"):
         """
             @brief: performs the speak action
             @param: term is a the child nodes of the speak clause
         """
         text = ""
         for term in terms.childs:
-            if term.type[0] == 'id': # query the variables database
-                text += str(self.variables[term.type[1]][1]) # drop the type of the variable
-            elif term.type[0] == 'str':
-                text += term.type[1]
-            elif term.type[0] == 'var':
-                text += str(term.type[1])
-            elif term.type[0] == '<return>':
-                text += str(self.variables['_return'][1])
-            else:
-                print(term)
-                raise Exception("Unknown term type")
+            text += str(self._get_value(term, username))
+            ## if term.type[0] == 'id': # query the variables database
+            ##     
+            ##     text += str(self.variables[term.type[1]][1]) # drop the type of the variable
+            ## elif term.type[0] == 'str':
+            ##     text += term.type[1]
+            ## elif term.type[0] == 'var':
+            ##     text += str(term.type[1])
+            ## elif term.type[0] == '<return>':
+            ##     text += str(self.variables['_return'][1])
+            ## else:
+            ##     print(term)
+            ##     raise Exception("Unknown term type")
         #if self.debug:
         print(text)
         return text
@@ -162,7 +210,20 @@ class StateMachine:
         print("Exiting")
         return 'exit'
     
-    def _update_action(self, id, calculation, is_return=False):
+    def _update_return_value(self, value, username="Guest"):
+        """
+            @brief: updates the return value
+            @param: value is the value to return
+        """
+        global db_lock, database
+        with db_lock:
+            store = Store(database)
+            user = store.find(UserVariableSet, UserVariableSet.username == username)
+            user.set(_return=value)
+            store.commit()
+            store.close()
+    
+    def _update_action(self, id, calculation, username="Guest"):
         """
             @brief: performs the update action
             @param: id is the id of the variable to update
@@ -171,30 +232,46 @@ class StateMachine:
         """
         if calculation.type[0] == 'calc':
             if calculation.type[1] == 'PLUS':
-                self.variables[id][1] = float(self._get_value(calculation.childs[0])) + float(self._get_value(calculation.childs[1]))
+                #self.variables[id][1] 
+                result = float(self._get_value(calculation.childs[0], username)) + float(self._get_value(calculation.childs[1], username))
+                
             elif calculation.type[1] == 'MINUS':
-                self.variables[id][1] = float(self._get_value(calculation.childs[0])) - float(self._get_value(calculation.childs[1]))
+                #self.variables[id][1]
+                result = float(self._get_value(calculation.childs[0], username)) - float(self._get_value(calculation.childs[1], username))
             else:
                 raise Exception("Unknown calculation type")
+            with db_lock:
+                store = Store(database)
+                store.find(UserVariableSet, UserVariableSet.username == username).set(**{id:result})
+                store.commit()
+                store.close()
         else:
             raise Exception("Unknown manipulation type")
     
-    def _get_value(self, term):
+    def _get_value(self, term, username):
         """
             @brief: gets the value of the term
             @param: term is the term to get the value from
         """
-        if term.type[0] == 'id':
-            return self.variables[term.type[1]][1]
-        elif term.type[0] == 'str':
-            return term.type[1]
-        elif term.type[0] == 'var':
-            return term.type[1]
-        elif term.type[0] == '<return>':
-            return self.variables['_return'][1]
-        else:
-            print(term)
-            raise Exception("Unknown term type")
+        global database, db_lock
+        with db_lock:
+            store = Store(database)
+            valueset = store.find(UserVariableSet, UserVariableSet.username == username).one()
+            store.close()
+            if term.type[0] == 'id':
+                value = getattr(valueset, term.type[1])
+                return value #self.variables[term.type[1]][1] 
+            elif term.type[0] == 'str':
+                return term.type[1]
+            elif term.type[0] == 'var':
+                return term.type[1]
+            elif term.type[0] == '<return>':
+                value = getattr(valueset, '_return')
+                return value #self.variables['_return'][1]
+            else:
+                print(term)
+                raise Exception("Unknown term type")
+            
         
     def _extract_actions(self, current_state, condition, actions):
         for action in actions:
@@ -228,6 +305,8 @@ if __name__ == "__main__":
     state_machine = StateMachine(ASTNode, debug=True)
     state_machine.interpret()
     print(state_machine)
+
+    state_machine.build_database("./database.db")
     
     
     

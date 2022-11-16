@@ -33,7 +33,7 @@ if __name__ == "__main__":
     parser = Parser(lexer, debug=False)
     with open("test.txt", "r") as f:
         script = f.read()
-    controller = Controller(lexer, parser, script, debug=True)
+    controller = Controller(lexer, parser, script, debug=True, username="Guest")
     input_string = ""
     current_state = controller.state_machine.initial_state
     current_state = controller.accept_condition(current_state, "<on_enter>")
