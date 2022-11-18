@@ -29,8 +29,8 @@ state welcome
             speak "Unknown command, please try again"
             goto welcome
     endSwitch
-    timeout $10 
-        speak "You have been idle for 10 seconds. Restarting service ..."
+    timeout $30 
+        speak "You have been idle for 30 seconds. Restarting service ..."
         goto welcome
     endTimeout
 endState
@@ -43,8 +43,8 @@ state withdraw
             update x = x MINUS _return
             goto welcome
     endSwitch
-    timeout $10 
-        speak "You have been idle for 10 seconds. Restarting service ..."
+    timeout $30 
+        speak "You have been idle for 30 seconds. Restarting service ..."
         goto welcome
     endTimeout
 endState
@@ -58,8 +58,8 @@ state topup
             update x = x PLUS _return
             goto welcome
     endSwitch
-    timeout $10 
-        speak "You have been idle for 10 seconds. Restarting service ..."
+    timeout $30 
+        speak "You have been idle for 30 seconds. Restarting service ..."
         goto welcome
     endTimeout
 endState
@@ -72,7 +72,7 @@ state goodbye
         default
             speak "not quite understood"
     endSwitch
-    timeout $10 
+    timeout $30 
             goto welcome
     endTimeout
 endState

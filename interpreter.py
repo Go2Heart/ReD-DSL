@@ -291,6 +291,7 @@ class StateMachine:
         with db_lock:
             store = Store(database)
             if store.get(UserVariableSet, username) is not None:
+                store.close()
                 raise Exception("User already exists")
             store.add(UserVariableSet(username, passwd))
             store.commit()
@@ -309,8 +310,10 @@ class StateMachine:
             store = Store(database)
             user = store.get(UserVariableSet, username)
             if user is None:
+                store.close()
                 raise Exception("User does not exist")
             if user.passwd != passwd:
+                store.close()
                 raise Exception("Incorrect password")
             store.close()
         return True

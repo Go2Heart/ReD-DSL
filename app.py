@@ -60,7 +60,7 @@ def send():
         print(output)
     except Exception as e:
         print(e)
-        return jsonify({"msg": "An exception has taken place, please try again!"}), 400
+        return jsonify({"msg": "An exception has taken place, please try again!\n" + str(e) }), 400
     return jsonify({"msg":output, "next_state": next_state, "timeout": timeout}), 200
 
 @app.route("/register")
@@ -102,3 +102,7 @@ def login():
         print(e)
         return jsonify({"msg": str(e)}), 400
     return jsonify({"username": username, "token": token ,"msg": msg}), 200
+
+if __name__ == "__main__":
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=9001)
