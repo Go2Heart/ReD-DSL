@@ -10,7 +10,7 @@ class Controller:
         self._lexer = lexer
         self._parser = paser
         self.debug = debug
-        self.state_machine = StateMachine(self._parser.parse(script), debug=False)
+        self.state_machine = StateMachine(self._parser.parse(script), debug=debug)
         self.state_machine.interpret()
         self.state_machine.build_database("./database.db")
         self.action_table = self.state_machine.action_dict

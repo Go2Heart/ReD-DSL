@@ -182,6 +182,7 @@ class StateMachine:
         text = ""
         for term in terms.childs:
             text += str(self._get_value(term, username))
+        print(text)
         return text
 
     def _goto_action(self, new_state):
@@ -329,7 +330,7 @@ class StateMachine:
             @return True if the condition is true, False otherwise
         """
         compare = self.compare_list[num]
-        compare_source = float(condition) if compare[1] == '_return' else float(self._get_value(ASTNode('id', compare[1]), username))
+        compare_source = float(condition) if compare[1] == '_return' else float(self._get_value(ASTNode(('id', compare[1])), username))
         compare_op = compare[2]
         compare_target = float(self._get_value(ASTNode(compare[3]), username))
         if compare_op == '<':
