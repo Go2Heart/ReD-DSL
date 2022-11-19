@@ -32,6 +32,8 @@ class Lexer:
         "ID",
         "VAR",
         "STR",
+        "LESS_EQUAL",
+        "GREATER_EQUAL",
     ] + list(keywords.values())
     t_ignore = ' \t\n'
 
@@ -82,6 +84,14 @@ class Lexer:
         if not self._input:
             raise RuntimeError('reading token before load.')
         return self._lexer.token()
+    
+    def t_LESS_EQUAL(self, t):
+        r'<='
+        return t
+
+    def t_GREATER_EQUAL(self, t):
+        r'>='
+        return t
 
     def t_ID(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -98,13 +108,9 @@ class Lexer:
         t.value = t.value[1:-1]
         return t
 
-    # def t_NEWLINE(self, t):
-    #    r'\n+'
-    #    t.lexer.lineno += len(t.value)
-    #    return t
 
     def t_error(self, t):
-        print(f"Unknown character {t.value[0]}")
+        raise SyntaxError(f'Illegal character {t.value[0]}')
         t.lexer.skip(1)
 
 

@@ -70,12 +70,13 @@ class StateMachine:
         self.states_content = []
         self.initial_state = '<mono_begin>'
         self.debug = debug
-        self.variables = dict()
+        self.variable_dict = dict()
         self.action_dict = dict()
+        self.compare_list = []
         #self._extract_states()
 
     def __str__(self):
-        return "States: " + str(self.states_dict) + "\nAction Table: " + str(self.action_dict) + "\nInitial State: " + str(self.initial_state) + "\nVariables: " + str(self.variables)
+        return "States: " + str(self.states_dict) + "\nAction Table: " + str(self.action_dict) + "\nInitial State: " + str(self.initial_state) + "\nVariables: " + str(self.variable_dict)
     
     def build_database(self, path):
         global database, db_lock
@@ -85,7 +86,7 @@ class StateMachine:
         database = create_database("sqlite:" + path)
         db_lock = Lock()
         create_table_statement = ["CREATE TABLE user_variable (username TEXT PRIMARY KEY, passwd TEXT"]
-        for k,v  in self.variables.items():
+        for k,v  in self.variable_dict.items():
             if v[0] == 'integer':
                 setattr(UserVariableSet, k, Int(default=int(v[1])))
             elif v[0] == 'real':
@@ -137,7 +138,7 @@ class StateMachine:
         """
         if(self.debug):
             print(var)
-        self.variables[var[1]] = [var[2], var[3]]
+        self.variable_dict[var[1]] = [var[2], var[3]]
         
     def _interpret_state(self, state):
         """
@@ -160,6 +161,9 @@ class StateMachine:
                 for term in terms:
                     if term.type =='default' or term.type[0] == 'case':
                         case_condition = term.type[1] if term.type[0] == 'case' else '<default>'
+                        if isinstance(case_condition, tuple):
+                            case_condition = ('<compare>' , len(self.compare_list))
+                            self.compare_list.append(term.type[1])
                         case_actions = term.childs
                         self._extract_actions(state_name, case_condition, case_actions)
             elif clause.type[0] == 'timeout':
@@ -168,8 +172,7 @@ class StateMachine:
                 actions = clause.childs
                 self._extract_actions(state_name, timeout_condition, actions)
             else:
-                print(clause)
-                raise Exception("Unknown clause type")
+                raise Exception("Unknown clause type", clause)
                       
     def _speak_action(self, terms, username="Guest"):
         """
@@ -179,7 +182,6 @@ class StateMachine:
         text = ""
         for term in terms.childs:
             text += str(self._get_value(term, username))
-        print(text)
         return text
 
     def _goto_action(self, new_state):
@@ -187,17 +189,19 @@ class StateMachine:
             @brief: performs the goto action
             @param: new_state is the state to go to
         """
-        print("Going to state: " + new_state)
+        if(self.debug): 
+            print("Going to state", new_state)
         return new_state
     
     def _exit_action(self):
         """
             @brief: performs the exit action
         """
-        print("Exiting")
+        if(self.debug): 
+            print("Exiting")
         return 'exit'
     
-    def _update_return_value(self, value, username="Guest"):
+    def update_return_value(self, value, username="Guest"):
         """
             @brief: updates the return value
             @param: value is the value to return
@@ -256,8 +260,7 @@ class StateMachine:
                 value = getattr(valueset, '_return')
                 return value #self.variables['_return'][1]
             else:
-                print(term)
-                raise Exception("Unknown term type")
+                raise Exception("Unknown term type", term)
             
         
     def _extract_actions(self, current_state, condition, actions):
@@ -317,6 +320,30 @@ class StateMachine:
                 raise Exception("Incorrect password")
             store.close()
         return True
+    
+    def test(self, condition, num, username="Guest"):
+        """
+            @brief: tests the condition
+            @param: condition is the condition to test
+            @param: num is the entry to compare list
+            @return True if the condition is true, False otherwise
+        """
+        compare = self.compare_list[num]
+        compare_source = float(condition) if compare[1] == '_return' else float(self._get_value(ASTNode('id', compare[1]), username))
+        compare_op = compare[2]
+        compare_target = float(self._get_value(ASTNode(compare[3]), username))
+        if compare_op == '<':
+            return compare_source < compare_target
+        elif compare_op == '>':
+            return compare_source > compare_target
+        elif compare_op == '<=':
+            return compare_source <= compare_target
+        elif compare_op == '>=':
+            return compare_source >= compare_target
+        else:
+            raise Exception("Unknown comparison operator")
+        
+        
 
                     
 if __name__ == "__main__":

@@ -59,7 +59,7 @@ def send():
         next_state, output, timeout = controller.accept_condition(state, msg, user["username"])
     except Exception as e:
         print(e)
-        return jsonify({"msg": "An exception has taken place, please try again!\n" + str(e) }), 400
+        return jsonify({"msg": "An exception has taken place, please try again!\n The error info:" + str(e) + '\n' }), 400
     return jsonify({"msg":output, "next_state": next_state, "timeout": timeout}), 200
 
 @app.route("/register")

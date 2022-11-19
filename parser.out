@@ -27,48 +27,61 @@ Rule 21    cases -> case
 Rule 22    cases -> cases case
 Rule 23    case -> CASE STR expressions
 Rule 24    case -> CASE RETURN expressions
-Rule 25    speak -> SPEAK terms
-Rule 26    terms -> term
-Rule 27    terms -> terms + term
-Rule 28    terms -> term PLUS term
-Rule 29    terms -> term MINUS term
-Rule 30    term -> STR
-Rule 31    term -> VAR
-Rule 32    term -> ID
-Rule 33    term -> RETURN
-Rule 34    goto -> GOTO ID
-Rule 35    timeout -> TIMEOUT VAR expressions ENDTIMEOUT
-Rule 36    default -> DEFAULT expressions ENDSWITCH
-Rule 37    default -> ENDSWITCH
-Rule 38    exit -> EXIT
+Rule 25    case -> CASE compare expressions
+Rule 26    compare -> ID > term
+Rule 27    compare -> ID < term
+Rule 28    compare -> ID LESS_EQUAL term
+Rule 29    compare -> ID GREATER_EQUAL term
+Rule 30    compare -> RETURN > term
+Rule 31    compare -> RETURN < term
+Rule 32    compare -> RETURN LESS_EQUAL term
+Rule 33    compare -> RETURN GREATER_EQUAL term
+Rule 34    speak -> SPEAK terms
+Rule 35    terms -> term
+Rule 36    terms -> terms + term
+Rule 37    terms -> term PLUS term
+Rule 38    terms -> term MINUS term
+Rule 39    term -> STR
+Rule 40    term -> VAR
+Rule 41    term -> ID
+Rule 42    term -> RETURN
+Rule 43    goto -> GOTO ID
+Rule 44    timeout -> TIMEOUT VAR expressions ENDTIMEOUT
+Rule 45    default -> DEFAULT expressions ENDSWITCH
+Rule 46    default -> ENDSWITCH
+Rule 47    exit -> EXIT
 
 Terminals, with rules where they appear
 
-+                    : 27
++                    : 36
+<                    : 27 31
 =                    : 19
-CASE                 : 23 24
-DEFAULT              : 36
+>                    : 26 30
+CASE                 : 23 24 25
+DEFAULT              : 45
 ENDSTATE             : 10
-ENDSWITCH            : 36 37
-ENDTIMEOUT           : 35
+ENDSWITCH            : 45 46
+ENDTIMEOUT           : 44
 ENDVARIABLE          : 2
-EXIT                 : 38
-GOTO                 : 34
-ID                   : 1 5 6 7 10 19 32 34
+EXIT                 : 47
+GOTO                 : 43
+GREATER_EQUAL        : 29 33
+ID                   : 1 5 6 7 10 19 26 27 28 29 41 43
 INTEGER              : 6
-MINUS                : 29
-PLUS                 : 28
+LESS_EQUAL           : 28 32
+MINUS                : 38
+PLUS                 : 37
 REAL                 : 5
-RETURN               : 24 33
+RETURN               : 24 30 31 32 33 42
 SCRIPT               : 1
-SPEAK                : 25
+SPEAK                : 34
 STATE                : 10
-STR                  : 7 23 30
+STR                  : 7 23 39
 SWITCH               : 20
 TEXT                 : 7
-TIMEOUT              : 35
+TIMEOUT              : 44
 UPDATE               : 19
-VAR                  : 5 6 31 35
+VAR                  : 5 6 40 44
 VARIABLE             : 2
 error                : 
 
@@ -76,18 +89,19 @@ Nonterminals, with rules where they appear
 
 case                 : 21 22
 cases                : 20 22
+compare              : 25
 default              : 20
 exit                 : 17
 expression           : 11 12
-expressions          : 10 12 23 24 35 36
+expressions          : 10 12 23 24 25 44 45
 goto                 : 15
 script               : 0
 speak                : 14
 state                : 8 9
 states               : 1 9
 switch               : 13
-term                 : 26 27 28 28 29 29
-terms                : 19 25 27
+term                 : 26 27 28 29 30 31 32 33 35 36 37 37 38 38
+terms                : 19 34 36
 timeout              : 16
 update               : 18
 var                  : 3 4
@@ -231,10 +245,10 @@ state 13
     (17) expression -> . exit
     (18) expression -> . update
     (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
     (19) update -> . UPDATE ID = terms
 
     SWITCH          shift and go to state 27
@@ -300,10 +314,10 @@ state 19
     (17) expression -> . exit
     (18) expression -> . update
     (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
     (19) update -> . UPDATE ID = terms
 
     ENDSTATE        shift and go to state 36
@@ -448,6 +462,7 @@ state 27
     (22) cases -> . cases case
     (23) case -> . CASE STR expressions
     (24) case -> . CASE RETURN expressions
+    (25) case -> . CASE compare expressions
 
     CASE            shift and go to state 40
 
@@ -456,15 +471,15 @@ state 27
 
 state 28
 
-    (25) speak -> SPEAK . terms
-    (26) terms -> . term
-    (27) terms -> . terms + term
-    (28) terms -> . term PLUS term
-    (29) terms -> . term MINUS term
-    (30) term -> . STR
-    (31) term -> . VAR
-    (32) term -> . ID
-    (33) term -> . RETURN
+    (34) speak -> SPEAK . terms
+    (35) terms -> . term
+    (36) terms -> . terms + term
+    (37) terms -> . term PLUS term
+    (38) terms -> . term MINUS term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
 
     STR             shift and go to state 43
     VAR             shift and go to state 44
@@ -476,33 +491,33 @@ state 28
 
 state 29
 
-    (34) goto -> GOTO . ID
+    (43) goto -> GOTO . ID
 
     ID              shift and go to state 47
 
 
 state 30
 
-    (35) timeout -> TIMEOUT . VAR expressions ENDTIMEOUT
+    (44) timeout -> TIMEOUT . VAR expressions ENDTIMEOUT
 
     VAR             shift and go to state 48
 
 
 state 31
 
-    (38) exit -> EXIT .
+    (47) exit -> EXIT .
 
-    ENDSTATE        reduce using rule 38 (exit -> EXIT .)
-    SWITCH          reduce using rule 38 (exit -> EXIT .)
-    SPEAK           reduce using rule 38 (exit -> EXIT .)
-    GOTO            reduce using rule 38 (exit -> EXIT .)
-    TIMEOUT         reduce using rule 38 (exit -> EXIT .)
-    EXIT            reduce using rule 38 (exit -> EXIT .)
-    UPDATE          reduce using rule 38 (exit -> EXIT .)
-    ENDTIMEOUT      reduce using rule 38 (exit -> EXIT .)
-    ENDSWITCH       reduce using rule 38 (exit -> EXIT .)
-    DEFAULT         reduce using rule 38 (exit -> EXIT .)
-    CASE            reduce using rule 38 (exit -> EXIT .)
+    ENDSTATE        reduce using rule 47 (exit -> EXIT .)
+    SWITCH          reduce using rule 47 (exit -> EXIT .)
+    SPEAK           reduce using rule 47 (exit -> EXIT .)
+    GOTO            reduce using rule 47 (exit -> EXIT .)
+    TIMEOUT         reduce using rule 47 (exit -> EXIT .)
+    EXIT            reduce using rule 47 (exit -> EXIT .)
+    UPDATE          reduce using rule 47 (exit -> EXIT .)
+    ENDTIMEOUT      reduce using rule 47 (exit -> EXIT .)
+    ENDSWITCH       reduce using rule 47 (exit -> EXIT .)
+    DEFAULT         reduce using rule 47 (exit -> EXIT .)
+    CASE            reduce using rule 47 (exit -> EXIT .)
 
 
 state 32
@@ -565,10 +580,11 @@ state 38
 
     (20) switch -> SWITCH cases . default
     (22) cases -> cases . case
-    (36) default -> . DEFAULT expressions ENDSWITCH
-    (37) default -> . ENDSWITCH
+    (45) default -> . DEFAULT expressions ENDSWITCH
+    (46) default -> . ENDSWITCH
     (23) case -> . CASE STR expressions
     (24) case -> . CASE RETURN expressions
+    (25) case -> . CASE compare expressions
 
     DEFAULT         shift and go to state 52
     ENDSWITCH       shift and go to state 53
@@ -590,152 +606,163 @@ state 40
 
     (23) case -> CASE . STR expressions
     (24) case -> CASE . RETURN expressions
+    (25) case -> CASE . compare expressions
+    (26) compare -> . ID > term
+    (27) compare -> . ID < term
+    (28) compare -> . ID LESS_EQUAL term
+    (29) compare -> . ID GREATER_EQUAL term
+    (30) compare -> . RETURN > term
+    (31) compare -> . RETURN < term
+    (32) compare -> . RETURN LESS_EQUAL term
+    (33) compare -> . RETURN GREATER_EQUAL term
 
     STR             shift and go to state 54
     RETURN          shift and go to state 55
+    ID              shift and go to state 57
 
+    compare                        shift and go to state 56
 
 state 41
 
-    (25) speak -> SPEAK terms .
-    (27) terms -> terms . + term
+    (34) speak -> SPEAK terms .
+    (36) terms -> terms . + term
 
-    ENDSTATE        reduce using rule 25 (speak -> SPEAK terms .)
-    SWITCH          reduce using rule 25 (speak -> SPEAK terms .)
-    SPEAK           reduce using rule 25 (speak -> SPEAK terms .)
-    GOTO            reduce using rule 25 (speak -> SPEAK terms .)
-    TIMEOUT         reduce using rule 25 (speak -> SPEAK terms .)
-    EXIT            reduce using rule 25 (speak -> SPEAK terms .)
-    UPDATE          reduce using rule 25 (speak -> SPEAK terms .)
-    ENDTIMEOUT      reduce using rule 25 (speak -> SPEAK terms .)
-    ENDSWITCH       reduce using rule 25 (speak -> SPEAK terms .)
-    DEFAULT         reduce using rule 25 (speak -> SPEAK terms .)
-    CASE            reduce using rule 25 (speak -> SPEAK terms .)
-    +               shift and go to state 56
+    ENDSTATE        reduce using rule 34 (speak -> SPEAK terms .)
+    SWITCH          reduce using rule 34 (speak -> SPEAK terms .)
+    SPEAK           reduce using rule 34 (speak -> SPEAK terms .)
+    GOTO            reduce using rule 34 (speak -> SPEAK terms .)
+    TIMEOUT         reduce using rule 34 (speak -> SPEAK terms .)
+    EXIT            reduce using rule 34 (speak -> SPEAK terms .)
+    UPDATE          reduce using rule 34 (speak -> SPEAK terms .)
+    ENDTIMEOUT      reduce using rule 34 (speak -> SPEAK terms .)
+    ENDSWITCH       reduce using rule 34 (speak -> SPEAK terms .)
+    DEFAULT         reduce using rule 34 (speak -> SPEAK terms .)
+    CASE            reduce using rule 34 (speak -> SPEAK terms .)
+    +               shift and go to state 58
 
 
 state 42
 
-    (26) terms -> term .
-    (28) terms -> term . PLUS term
-    (29) terms -> term . MINUS term
+    (35) terms -> term .
+    (37) terms -> term . PLUS term
+    (38) terms -> term . MINUS term
 
-    +               reduce using rule 26 (terms -> term .)
-    ENDSTATE        reduce using rule 26 (terms -> term .)
-    SWITCH          reduce using rule 26 (terms -> term .)
-    SPEAK           reduce using rule 26 (terms -> term .)
-    GOTO            reduce using rule 26 (terms -> term .)
-    TIMEOUT         reduce using rule 26 (terms -> term .)
-    EXIT            reduce using rule 26 (terms -> term .)
-    UPDATE          reduce using rule 26 (terms -> term .)
-    ENDTIMEOUT      reduce using rule 26 (terms -> term .)
-    ENDSWITCH       reduce using rule 26 (terms -> term .)
-    DEFAULT         reduce using rule 26 (terms -> term .)
-    CASE            reduce using rule 26 (terms -> term .)
-    PLUS            shift and go to state 57
-    MINUS           shift and go to state 58
+    +               reduce using rule 35 (terms -> term .)
+    ENDSTATE        reduce using rule 35 (terms -> term .)
+    SWITCH          reduce using rule 35 (terms -> term .)
+    SPEAK           reduce using rule 35 (terms -> term .)
+    GOTO            reduce using rule 35 (terms -> term .)
+    TIMEOUT         reduce using rule 35 (terms -> term .)
+    EXIT            reduce using rule 35 (terms -> term .)
+    UPDATE          reduce using rule 35 (terms -> term .)
+    ENDTIMEOUT      reduce using rule 35 (terms -> term .)
+    ENDSWITCH       reduce using rule 35 (terms -> term .)
+    DEFAULT         reduce using rule 35 (terms -> term .)
+    CASE            reduce using rule 35 (terms -> term .)
+    PLUS            shift and go to state 59
+    MINUS           shift and go to state 60
 
 
 state 43
 
-    (30) term -> STR .
+    (39) term -> STR .
 
-    PLUS            reduce using rule 30 (term -> STR .)
-    MINUS           reduce using rule 30 (term -> STR .)
-    +               reduce using rule 30 (term -> STR .)
-    ENDSTATE        reduce using rule 30 (term -> STR .)
-    SWITCH          reduce using rule 30 (term -> STR .)
-    SPEAK           reduce using rule 30 (term -> STR .)
-    GOTO            reduce using rule 30 (term -> STR .)
-    TIMEOUT         reduce using rule 30 (term -> STR .)
-    EXIT            reduce using rule 30 (term -> STR .)
-    UPDATE          reduce using rule 30 (term -> STR .)
-    ENDTIMEOUT      reduce using rule 30 (term -> STR .)
-    ENDSWITCH       reduce using rule 30 (term -> STR .)
-    DEFAULT         reduce using rule 30 (term -> STR .)
-    CASE            reduce using rule 30 (term -> STR .)
+    PLUS            reduce using rule 39 (term -> STR .)
+    MINUS           reduce using rule 39 (term -> STR .)
+    +               reduce using rule 39 (term -> STR .)
+    ENDSTATE        reduce using rule 39 (term -> STR .)
+    SWITCH          reduce using rule 39 (term -> STR .)
+    SPEAK           reduce using rule 39 (term -> STR .)
+    GOTO            reduce using rule 39 (term -> STR .)
+    TIMEOUT         reduce using rule 39 (term -> STR .)
+    EXIT            reduce using rule 39 (term -> STR .)
+    UPDATE          reduce using rule 39 (term -> STR .)
+    ENDTIMEOUT      reduce using rule 39 (term -> STR .)
+    ENDSWITCH       reduce using rule 39 (term -> STR .)
+    DEFAULT         reduce using rule 39 (term -> STR .)
+    CASE            reduce using rule 39 (term -> STR .)
 
 
 state 44
 
-    (31) term -> VAR .
+    (40) term -> VAR .
 
-    PLUS            reduce using rule 31 (term -> VAR .)
-    MINUS           reduce using rule 31 (term -> VAR .)
-    +               reduce using rule 31 (term -> VAR .)
-    ENDSTATE        reduce using rule 31 (term -> VAR .)
-    SWITCH          reduce using rule 31 (term -> VAR .)
-    SPEAK           reduce using rule 31 (term -> VAR .)
-    GOTO            reduce using rule 31 (term -> VAR .)
-    TIMEOUT         reduce using rule 31 (term -> VAR .)
-    EXIT            reduce using rule 31 (term -> VAR .)
-    UPDATE          reduce using rule 31 (term -> VAR .)
-    ENDTIMEOUT      reduce using rule 31 (term -> VAR .)
-    ENDSWITCH       reduce using rule 31 (term -> VAR .)
-    DEFAULT         reduce using rule 31 (term -> VAR .)
-    CASE            reduce using rule 31 (term -> VAR .)
+    PLUS            reduce using rule 40 (term -> VAR .)
+    MINUS           reduce using rule 40 (term -> VAR .)
+    +               reduce using rule 40 (term -> VAR .)
+    ENDSTATE        reduce using rule 40 (term -> VAR .)
+    SWITCH          reduce using rule 40 (term -> VAR .)
+    SPEAK           reduce using rule 40 (term -> VAR .)
+    GOTO            reduce using rule 40 (term -> VAR .)
+    TIMEOUT         reduce using rule 40 (term -> VAR .)
+    EXIT            reduce using rule 40 (term -> VAR .)
+    UPDATE          reduce using rule 40 (term -> VAR .)
+    ENDTIMEOUT      reduce using rule 40 (term -> VAR .)
+    ENDSWITCH       reduce using rule 40 (term -> VAR .)
+    DEFAULT         reduce using rule 40 (term -> VAR .)
+    CASE            reduce using rule 40 (term -> VAR .)
 
 
 state 45
 
-    (32) term -> ID .
+    (41) term -> ID .
 
-    PLUS            reduce using rule 32 (term -> ID .)
-    MINUS           reduce using rule 32 (term -> ID .)
-    +               reduce using rule 32 (term -> ID .)
-    ENDSTATE        reduce using rule 32 (term -> ID .)
-    SWITCH          reduce using rule 32 (term -> ID .)
-    SPEAK           reduce using rule 32 (term -> ID .)
-    GOTO            reduce using rule 32 (term -> ID .)
-    TIMEOUT         reduce using rule 32 (term -> ID .)
-    EXIT            reduce using rule 32 (term -> ID .)
-    UPDATE          reduce using rule 32 (term -> ID .)
-    ENDTIMEOUT      reduce using rule 32 (term -> ID .)
-    ENDSWITCH       reduce using rule 32 (term -> ID .)
-    DEFAULT         reduce using rule 32 (term -> ID .)
-    CASE            reduce using rule 32 (term -> ID .)
+    PLUS            reduce using rule 41 (term -> ID .)
+    MINUS           reduce using rule 41 (term -> ID .)
+    +               reduce using rule 41 (term -> ID .)
+    ENDSTATE        reduce using rule 41 (term -> ID .)
+    SWITCH          reduce using rule 41 (term -> ID .)
+    SPEAK           reduce using rule 41 (term -> ID .)
+    GOTO            reduce using rule 41 (term -> ID .)
+    TIMEOUT         reduce using rule 41 (term -> ID .)
+    EXIT            reduce using rule 41 (term -> ID .)
+    UPDATE          reduce using rule 41 (term -> ID .)
+    ENDTIMEOUT      reduce using rule 41 (term -> ID .)
+    ENDSWITCH       reduce using rule 41 (term -> ID .)
+    DEFAULT         reduce using rule 41 (term -> ID .)
+    CASE            reduce using rule 41 (term -> ID .)
 
 
 state 46
 
-    (33) term -> RETURN .
+    (42) term -> RETURN .
 
-    PLUS            reduce using rule 33 (term -> RETURN .)
-    MINUS           reduce using rule 33 (term -> RETURN .)
-    +               reduce using rule 33 (term -> RETURN .)
-    ENDSTATE        reduce using rule 33 (term -> RETURN .)
-    SWITCH          reduce using rule 33 (term -> RETURN .)
-    SPEAK           reduce using rule 33 (term -> RETURN .)
-    GOTO            reduce using rule 33 (term -> RETURN .)
-    TIMEOUT         reduce using rule 33 (term -> RETURN .)
-    EXIT            reduce using rule 33 (term -> RETURN .)
-    UPDATE          reduce using rule 33 (term -> RETURN .)
-    ENDTIMEOUT      reduce using rule 33 (term -> RETURN .)
-    ENDSWITCH       reduce using rule 33 (term -> RETURN .)
-    DEFAULT         reduce using rule 33 (term -> RETURN .)
-    CASE            reduce using rule 33 (term -> RETURN .)
+    PLUS            reduce using rule 42 (term -> RETURN .)
+    MINUS           reduce using rule 42 (term -> RETURN .)
+    +               reduce using rule 42 (term -> RETURN .)
+    ENDSTATE        reduce using rule 42 (term -> RETURN .)
+    SWITCH          reduce using rule 42 (term -> RETURN .)
+    SPEAK           reduce using rule 42 (term -> RETURN .)
+    GOTO            reduce using rule 42 (term -> RETURN .)
+    TIMEOUT         reduce using rule 42 (term -> RETURN .)
+    EXIT            reduce using rule 42 (term -> RETURN .)
+    UPDATE          reduce using rule 42 (term -> RETURN .)
+    ENDTIMEOUT      reduce using rule 42 (term -> RETURN .)
+    ENDSWITCH       reduce using rule 42 (term -> RETURN .)
+    DEFAULT         reduce using rule 42 (term -> RETURN .)
+    CASE            reduce using rule 42 (term -> RETURN .)
 
 
 state 47
 
-    (34) goto -> GOTO ID .
+    (43) goto -> GOTO ID .
 
-    ENDSTATE        reduce using rule 34 (goto -> GOTO ID .)
-    SWITCH          reduce using rule 34 (goto -> GOTO ID .)
-    SPEAK           reduce using rule 34 (goto -> GOTO ID .)
-    GOTO            reduce using rule 34 (goto -> GOTO ID .)
-    TIMEOUT         reduce using rule 34 (goto -> GOTO ID .)
-    EXIT            reduce using rule 34 (goto -> GOTO ID .)
-    UPDATE          reduce using rule 34 (goto -> GOTO ID .)
-    ENDTIMEOUT      reduce using rule 34 (goto -> GOTO ID .)
-    ENDSWITCH       reduce using rule 34 (goto -> GOTO ID .)
-    DEFAULT         reduce using rule 34 (goto -> GOTO ID .)
-    CASE            reduce using rule 34 (goto -> GOTO ID .)
+    ENDSTATE        reduce using rule 43 (goto -> GOTO ID .)
+    SWITCH          reduce using rule 43 (goto -> GOTO ID .)
+    SPEAK           reduce using rule 43 (goto -> GOTO ID .)
+    GOTO            reduce using rule 43 (goto -> GOTO ID .)
+    TIMEOUT         reduce using rule 43 (goto -> GOTO ID .)
+    EXIT            reduce using rule 43 (goto -> GOTO ID .)
+    UPDATE          reduce using rule 43 (goto -> GOTO ID .)
+    ENDTIMEOUT      reduce using rule 43 (goto -> GOTO ID .)
+    ENDSWITCH       reduce using rule 43 (goto -> GOTO ID .)
+    DEFAULT         reduce using rule 43 (goto -> GOTO ID .)
+    CASE            reduce using rule 43 (goto -> GOTO ID .)
 
 
 state 48
 
-    (35) timeout -> TIMEOUT VAR . expressions ENDTIMEOUT
+    (44) timeout -> TIMEOUT VAR . expressions ENDTIMEOUT
     (11) expressions -> . expression
     (12) expressions -> . expressions expression
     (13) expression -> . switch
@@ -745,10 +772,10 @@ state 48
     (17) expression -> . exit
     (18) expression -> . update
     (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
     (19) update -> . UPDATE ID = terms
 
     SWITCH          shift and go to state 27
@@ -758,7 +785,7 @@ state 48
     EXIT            shift and go to state 31
     UPDATE          shift and go to state 32
 
-    expressions                    shift and go to state 59
+    expressions                    shift and go to state 61
     expression                     shift and go to state 20
     switch                         shift and go to state 21
     speak                          shift and go to state 22
@@ -771,7 +798,7 @@ state 49
 
     (19) update -> UPDATE ID . = terms
 
-    =               shift and go to state 60
+    =               shift and go to state 62
 
 
 state 50
@@ -802,7 +829,7 @@ state 51
 
 state 52
 
-    (36) default -> DEFAULT . expressions ENDSWITCH
+    (45) default -> DEFAULT . expressions ENDSWITCH
     (11) expressions -> . expression
     (12) expressions -> . expressions expression
     (13) expression -> . switch
@@ -812,95 +839,10 @@ state 52
     (17) expression -> . exit
     (18) expression -> . update
     (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
-    (19) update -> . UPDATE ID = terms
-
-    SWITCH          shift and go to state 27
-    SPEAK           shift and go to state 28
-    GOTO            shift and go to state 29
-    TIMEOUT         shift and go to state 30
-    EXIT            shift and go to state 31
-    UPDATE          shift and go to state 32
-
-    expressions                    shift and go to state 61
-    expression                     shift and go to state 20
-    switch                         shift and go to state 21
-    speak                          shift and go to state 22
-    goto                           shift and go to state 23
-    timeout                        shift and go to state 24
-    exit                           shift and go to state 25
-    update                         shift and go to state 26
-
-state 53
-
-    (37) default -> ENDSWITCH .
-
-    ENDSTATE        reduce using rule 37 (default -> ENDSWITCH .)
-    SWITCH          reduce using rule 37 (default -> ENDSWITCH .)
-    SPEAK           reduce using rule 37 (default -> ENDSWITCH .)
-    GOTO            reduce using rule 37 (default -> ENDSWITCH .)
-    TIMEOUT         reduce using rule 37 (default -> ENDSWITCH .)
-    EXIT            reduce using rule 37 (default -> ENDSWITCH .)
-    UPDATE          reduce using rule 37 (default -> ENDSWITCH .)
-    ENDTIMEOUT      reduce using rule 37 (default -> ENDSWITCH .)
-    ENDSWITCH       reduce using rule 37 (default -> ENDSWITCH .)
-    DEFAULT         reduce using rule 37 (default -> ENDSWITCH .)
-    CASE            reduce using rule 37 (default -> ENDSWITCH .)
-
-
-state 54
-
-    (23) case -> CASE STR . expressions
-    (11) expressions -> . expression
-    (12) expressions -> . expressions expression
-    (13) expression -> . switch
-    (14) expression -> . speak
-    (15) expression -> . goto
-    (16) expression -> . timeout
-    (17) expression -> . exit
-    (18) expression -> . update
-    (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
-    (19) update -> . UPDATE ID = terms
-
-    SWITCH          shift and go to state 27
-    SPEAK           shift and go to state 28
-    GOTO            shift and go to state 29
-    TIMEOUT         shift and go to state 30
-    EXIT            shift and go to state 31
-    UPDATE          shift and go to state 32
-
-    expressions                    shift and go to state 62
-    expression                     shift and go to state 20
-    switch                         shift and go to state 21
-    speak                          shift and go to state 22
-    goto                           shift and go to state 23
-    timeout                        shift and go to state 24
-    exit                           shift and go to state 25
-    update                         shift and go to state 26
-
-state 55
-
-    (24) case -> CASE RETURN . expressions
-    (11) expressions -> . expression
-    (12) expressions -> . expressions expression
-    (13) expression -> . switch
-    (14) expression -> . speak
-    (15) expression -> . goto
-    (16) expression -> . timeout
-    (17) expression -> . exit
-    (18) expression -> . update
-    (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
     (19) update -> . UPDATE ID = terms
 
     SWITCH          shift and go to state 27
@@ -919,55 +861,28 @@ state 55
     exit                           shift and go to state 25
     update                         shift and go to state 26
 
-state 56
+state 53
 
-    (27) terms -> terms + . term
-    (30) term -> . STR
-    (31) term -> . VAR
-    (32) term -> . ID
-    (33) term -> . RETURN
+    (46) default -> ENDSWITCH .
 
-    STR             shift and go to state 43
-    VAR             shift and go to state 44
-    ID              shift and go to state 45
-    RETURN          shift and go to state 46
+    ENDSTATE        reduce using rule 46 (default -> ENDSWITCH .)
+    SWITCH          reduce using rule 46 (default -> ENDSWITCH .)
+    SPEAK           reduce using rule 46 (default -> ENDSWITCH .)
+    GOTO            reduce using rule 46 (default -> ENDSWITCH .)
+    TIMEOUT         reduce using rule 46 (default -> ENDSWITCH .)
+    EXIT            reduce using rule 46 (default -> ENDSWITCH .)
+    UPDATE          reduce using rule 46 (default -> ENDSWITCH .)
+    ENDTIMEOUT      reduce using rule 46 (default -> ENDSWITCH .)
+    ENDSWITCH       reduce using rule 46 (default -> ENDSWITCH .)
+    DEFAULT         reduce using rule 46 (default -> ENDSWITCH .)
+    CASE            reduce using rule 46 (default -> ENDSWITCH .)
 
-    term                           shift and go to state 64
 
-state 57
+state 54
 
-    (28) terms -> term PLUS . term
-    (30) term -> . STR
-    (31) term -> . VAR
-    (32) term -> . ID
-    (33) term -> . RETURN
-
-    STR             shift and go to state 43
-    VAR             shift and go to state 44
-    ID              shift and go to state 45
-    RETURN          shift and go to state 46
-
-    term                           shift and go to state 65
-
-state 58
-
-    (29) terms -> term MINUS . term
-    (30) term -> . STR
-    (31) term -> . VAR
-    (32) term -> . ID
-    (33) term -> . RETURN
-
-    STR             shift and go to state 43
-    VAR             shift and go to state 44
-    ID              shift and go to state 45
-    RETURN          shift and go to state 46
-
-    term                           shift and go to state 66
-
-state 59
-
-    (35) timeout -> TIMEOUT VAR expressions . ENDTIMEOUT
-    (12) expressions -> expressions . expression
+    (23) case -> CASE STR . expressions
+    (11) expressions -> . expression
+    (12) expressions -> . expressions expression
     (13) expression -> . switch
     (14) expression -> . speak
     (15) expression -> . goto
@@ -975,13 +890,12 @@ state 59
     (17) expression -> . exit
     (18) expression -> . update
     (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
     (19) update -> . UPDATE ID = terms
 
-    ENDTIMEOUT      shift and go to state 67
     SWITCH          shift and go to state 27
     SPEAK           shift and go to state 28
     GOTO            shift and go to state 29
@@ -989,7 +903,8 @@ state 59
     EXIT            shift and go to state 31
     UPDATE          shift and go to state 32
 
-    expression                     shift and go to state 37
+    expressions                    shift and go to state 64
+    expression                     shift and go to state 20
     switch                         shift and go to state 21
     speak                          shift and go to state 22
     goto                           shift and go to state 23
@@ -997,29 +912,143 @@ state 59
     exit                           shift and go to state 25
     update                         shift and go to state 26
 
-state 60
+state 55
 
-    (19) update -> UPDATE ID = . terms
-    (26) terms -> . term
-    (27) terms -> . terms + term
-    (28) terms -> . term PLUS term
-    (29) terms -> . term MINUS term
-    (30) term -> . STR
-    (31) term -> . VAR
-    (32) term -> . ID
-    (33) term -> . RETURN
+    (24) case -> CASE RETURN . expressions
+    (30) compare -> RETURN . > term
+    (31) compare -> RETURN . < term
+    (32) compare -> RETURN . LESS_EQUAL term
+    (33) compare -> RETURN . GREATER_EQUAL term
+    (11) expressions -> . expression
+    (12) expressions -> . expressions expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) expression -> . update
+    (20) switch -> . SWITCH cases default
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
+    (19) update -> . UPDATE ID = terms
+
+    >               shift and go to state 66
+    <               shift and go to state 67
+    LESS_EQUAL      shift and go to state 68
+    GREATER_EQUAL   shift and go to state 69
+    SWITCH          shift and go to state 27
+    SPEAK           shift and go to state 28
+    GOTO            shift and go to state 29
+    TIMEOUT         shift and go to state 30
+    EXIT            shift and go to state 31
+    UPDATE          shift and go to state 32
+
+    expressions                    shift and go to state 65
+    expression                     shift and go to state 20
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
+    update                         shift and go to state 26
+
+state 56
+
+    (25) case -> CASE compare . expressions
+    (11) expressions -> . expression
+    (12) expressions -> . expressions expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) expression -> . update
+    (20) switch -> . SWITCH cases default
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
+    (19) update -> . UPDATE ID = terms
+
+    SWITCH          shift and go to state 27
+    SPEAK           shift and go to state 28
+    GOTO            shift and go to state 29
+    TIMEOUT         shift and go to state 30
+    EXIT            shift and go to state 31
+    UPDATE          shift and go to state 32
+
+    expressions                    shift and go to state 70
+    expression                     shift and go to state 20
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
+    update                         shift and go to state 26
+
+state 57
+
+    (26) compare -> ID . > term
+    (27) compare -> ID . < term
+    (28) compare -> ID . LESS_EQUAL term
+    (29) compare -> ID . GREATER_EQUAL term
+
+    >               shift and go to state 71
+    <               shift and go to state 72
+    LESS_EQUAL      shift and go to state 73
+    GREATER_EQUAL   shift and go to state 74
+
+
+state 58
+
+    (36) terms -> terms + . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
 
     STR             shift and go to state 43
     VAR             shift and go to state 44
     ID              shift and go to state 45
     RETURN          shift and go to state 46
 
-    terms                          shift and go to state 68
-    term                           shift and go to state 42
+    term                           shift and go to state 75
+
+state 59
+
+    (37) terms -> term PLUS . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    term                           shift and go to state 76
+
+state 60
+
+    (38) terms -> term MINUS . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    term                           shift and go to state 77
 
 state 61
 
-    (36) default -> DEFAULT expressions . ENDSWITCH
+    (44) timeout -> TIMEOUT VAR expressions . ENDTIMEOUT
     (12) expressions -> expressions . expression
     (13) expression -> . switch
     (14) expression -> . speak
@@ -1028,13 +1057,13 @@ state 61
     (17) expression -> . exit
     (18) expression -> . update
     (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
     (19) update -> . UPDATE ID = terms
 
-    ENDSWITCH       shift and go to state 69
+    ENDTIMEOUT      shift and go to state 78
     SWITCH          shift and go to state 27
     SPEAK           shift and go to state 28
     GOTO            shift and go to state 29
@@ -1052,6 +1081,59 @@ state 61
 
 state 62
 
+    (19) update -> UPDATE ID = . terms
+    (35) terms -> . term
+    (36) terms -> . terms + term
+    (37) terms -> . term PLUS term
+    (38) terms -> . term MINUS term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    terms                          shift and go to state 79
+    term                           shift and go to state 42
+
+state 63
+
+    (45) default -> DEFAULT expressions . ENDSWITCH
+    (12) expressions -> expressions . expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) expression -> . update
+    (20) switch -> . SWITCH cases default
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
+    (19) update -> . UPDATE ID = terms
+
+    ENDSWITCH       shift and go to state 80
+    SWITCH          shift and go to state 27
+    SPEAK           shift and go to state 28
+    GOTO            shift and go to state 29
+    TIMEOUT         shift and go to state 30
+    EXIT            shift and go to state 31
+    UPDATE          shift and go to state 32
+
+    expression                     shift and go to state 37
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
+    update                         shift and go to state 26
+
+state 64
+
     (23) case -> CASE STR expressions .
     (12) expressions -> expressions . expression
     (13) expression -> . switch
@@ -1061,10 +1143,10 @@ state 62
     (17) expression -> . exit
     (18) expression -> . update
     (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
     (19) update -> . UPDATE ID = terms
 
     DEFAULT         reduce using rule 23 (case -> CASE STR expressions .)
@@ -1085,7 +1167,7 @@ state 62
     exit                           shift and go to state 25
     update                         shift and go to state 26
 
-state 63
+state 65
 
     (24) case -> CASE RETURN expressions .
     (12) expressions -> expressions . expression
@@ -1096,10 +1178,10 @@ state 63
     (17) expression -> . exit
     (18) expression -> . update
     (20) switch -> . SWITCH cases default
-    (25) speak -> . SPEAK terms
-    (34) goto -> . GOTO ID
-    (35) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
-    (38) exit -> . EXIT
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
     (19) update -> . UPDATE ID = terms
 
     DEFAULT         reduce using rule 24 (case -> CASE RETURN expressions .)
@@ -1120,81 +1202,236 @@ state 63
     exit                           shift and go to state 25
     update                         shift and go to state 26
 
-state 64
-
-    (27) terms -> terms + term .
-
-    +               reduce using rule 27 (terms -> terms + term .)
-    ENDSTATE        reduce using rule 27 (terms -> terms + term .)
-    SWITCH          reduce using rule 27 (terms -> terms + term .)
-    SPEAK           reduce using rule 27 (terms -> terms + term .)
-    GOTO            reduce using rule 27 (terms -> terms + term .)
-    TIMEOUT         reduce using rule 27 (terms -> terms + term .)
-    EXIT            reduce using rule 27 (terms -> terms + term .)
-    UPDATE          reduce using rule 27 (terms -> terms + term .)
-    ENDTIMEOUT      reduce using rule 27 (terms -> terms + term .)
-    ENDSWITCH       reduce using rule 27 (terms -> terms + term .)
-    DEFAULT         reduce using rule 27 (terms -> terms + term .)
-    CASE            reduce using rule 27 (terms -> terms + term .)
-
-
-state 65
-
-    (28) terms -> term PLUS term .
-
-    +               reduce using rule 28 (terms -> term PLUS term .)
-    ENDSTATE        reduce using rule 28 (terms -> term PLUS term .)
-    SWITCH          reduce using rule 28 (terms -> term PLUS term .)
-    SPEAK           reduce using rule 28 (terms -> term PLUS term .)
-    GOTO            reduce using rule 28 (terms -> term PLUS term .)
-    TIMEOUT         reduce using rule 28 (terms -> term PLUS term .)
-    EXIT            reduce using rule 28 (terms -> term PLUS term .)
-    UPDATE          reduce using rule 28 (terms -> term PLUS term .)
-    ENDTIMEOUT      reduce using rule 28 (terms -> term PLUS term .)
-    ENDSWITCH       reduce using rule 28 (terms -> term PLUS term .)
-    DEFAULT         reduce using rule 28 (terms -> term PLUS term .)
-    CASE            reduce using rule 28 (terms -> term PLUS term .)
-
-
 state 66
 
-    (29) terms -> term MINUS term .
+    (30) compare -> RETURN > . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
 
-    +               reduce using rule 29 (terms -> term MINUS term .)
-    ENDSTATE        reduce using rule 29 (terms -> term MINUS term .)
-    SWITCH          reduce using rule 29 (terms -> term MINUS term .)
-    SPEAK           reduce using rule 29 (terms -> term MINUS term .)
-    GOTO            reduce using rule 29 (terms -> term MINUS term .)
-    TIMEOUT         reduce using rule 29 (terms -> term MINUS term .)
-    EXIT            reduce using rule 29 (terms -> term MINUS term .)
-    UPDATE          reduce using rule 29 (terms -> term MINUS term .)
-    ENDTIMEOUT      reduce using rule 29 (terms -> term MINUS term .)
-    ENDSWITCH       reduce using rule 29 (terms -> term MINUS term .)
-    DEFAULT         reduce using rule 29 (terms -> term MINUS term .)
-    CASE            reduce using rule 29 (terms -> term MINUS term .)
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
 
+    term                           shift and go to state 81
 
 state 67
 
-    (35) timeout -> TIMEOUT VAR expressions ENDTIMEOUT .
+    (31) compare -> RETURN < . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
 
-    ENDSTATE        reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    SWITCH          reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    SPEAK           reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    GOTO            reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    TIMEOUT         reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    EXIT            reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    UPDATE          reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    ENDTIMEOUT      reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    ENDSWITCH       reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    DEFAULT         reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
-    CASE            reduce using rule 35 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
 
+    term                           shift and go to state 82
 
 state 68
 
+    (32) compare -> RETURN LESS_EQUAL . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    term                           shift and go to state 83
+
+state 69
+
+    (33) compare -> RETURN GREATER_EQUAL . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    term                           shift and go to state 84
+
+state 70
+
+    (25) case -> CASE compare expressions .
+    (12) expressions -> expressions . expression
+    (13) expression -> . switch
+    (14) expression -> . speak
+    (15) expression -> . goto
+    (16) expression -> . timeout
+    (17) expression -> . exit
+    (18) expression -> . update
+    (20) switch -> . SWITCH cases default
+    (34) speak -> . SPEAK terms
+    (43) goto -> . GOTO ID
+    (44) timeout -> . TIMEOUT VAR expressions ENDTIMEOUT
+    (47) exit -> . EXIT
+    (19) update -> . UPDATE ID = terms
+
+    DEFAULT         reduce using rule 25 (case -> CASE compare expressions .)
+    ENDSWITCH       reduce using rule 25 (case -> CASE compare expressions .)
+    CASE            reduce using rule 25 (case -> CASE compare expressions .)
+    SWITCH          shift and go to state 27
+    SPEAK           shift and go to state 28
+    GOTO            shift and go to state 29
+    TIMEOUT         shift and go to state 30
+    EXIT            shift and go to state 31
+    UPDATE          shift and go to state 32
+
+    expression                     shift and go to state 37
+    switch                         shift and go to state 21
+    speak                          shift and go to state 22
+    goto                           shift and go to state 23
+    timeout                        shift and go to state 24
+    exit                           shift and go to state 25
+    update                         shift and go to state 26
+
+state 71
+
+    (26) compare -> ID > . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    term                           shift and go to state 85
+
+state 72
+
+    (27) compare -> ID < . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    term                           shift and go to state 86
+
+state 73
+
+    (28) compare -> ID LESS_EQUAL . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    term                           shift and go to state 87
+
+state 74
+
+    (29) compare -> ID GREATER_EQUAL . term
+    (39) term -> . STR
+    (40) term -> . VAR
+    (41) term -> . ID
+    (42) term -> . RETURN
+
+    STR             shift and go to state 43
+    VAR             shift and go to state 44
+    ID              shift and go to state 45
+    RETURN          shift and go to state 46
+
+    term                           shift and go to state 88
+
+state 75
+
+    (36) terms -> terms + term .
+
+    +               reduce using rule 36 (terms -> terms + term .)
+    ENDSTATE        reduce using rule 36 (terms -> terms + term .)
+    SWITCH          reduce using rule 36 (terms -> terms + term .)
+    SPEAK           reduce using rule 36 (terms -> terms + term .)
+    GOTO            reduce using rule 36 (terms -> terms + term .)
+    TIMEOUT         reduce using rule 36 (terms -> terms + term .)
+    EXIT            reduce using rule 36 (terms -> terms + term .)
+    UPDATE          reduce using rule 36 (terms -> terms + term .)
+    ENDTIMEOUT      reduce using rule 36 (terms -> terms + term .)
+    ENDSWITCH       reduce using rule 36 (terms -> terms + term .)
+    DEFAULT         reduce using rule 36 (terms -> terms + term .)
+    CASE            reduce using rule 36 (terms -> terms + term .)
+
+
+state 76
+
+    (37) terms -> term PLUS term .
+
+    +               reduce using rule 37 (terms -> term PLUS term .)
+    ENDSTATE        reduce using rule 37 (terms -> term PLUS term .)
+    SWITCH          reduce using rule 37 (terms -> term PLUS term .)
+    SPEAK           reduce using rule 37 (terms -> term PLUS term .)
+    GOTO            reduce using rule 37 (terms -> term PLUS term .)
+    TIMEOUT         reduce using rule 37 (terms -> term PLUS term .)
+    EXIT            reduce using rule 37 (terms -> term PLUS term .)
+    UPDATE          reduce using rule 37 (terms -> term PLUS term .)
+    ENDTIMEOUT      reduce using rule 37 (terms -> term PLUS term .)
+    ENDSWITCH       reduce using rule 37 (terms -> term PLUS term .)
+    DEFAULT         reduce using rule 37 (terms -> term PLUS term .)
+    CASE            reduce using rule 37 (terms -> term PLUS term .)
+
+
+state 77
+
+    (38) terms -> term MINUS term .
+
+    +               reduce using rule 38 (terms -> term MINUS term .)
+    ENDSTATE        reduce using rule 38 (terms -> term MINUS term .)
+    SWITCH          reduce using rule 38 (terms -> term MINUS term .)
+    SPEAK           reduce using rule 38 (terms -> term MINUS term .)
+    GOTO            reduce using rule 38 (terms -> term MINUS term .)
+    TIMEOUT         reduce using rule 38 (terms -> term MINUS term .)
+    EXIT            reduce using rule 38 (terms -> term MINUS term .)
+    UPDATE          reduce using rule 38 (terms -> term MINUS term .)
+    ENDTIMEOUT      reduce using rule 38 (terms -> term MINUS term .)
+    ENDSWITCH       reduce using rule 38 (terms -> term MINUS term .)
+    DEFAULT         reduce using rule 38 (terms -> term MINUS term .)
+    CASE            reduce using rule 38 (terms -> term MINUS term .)
+
+
+state 78
+
+    (44) timeout -> TIMEOUT VAR expressions ENDTIMEOUT .
+
+    ENDSTATE        reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    SWITCH          reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    SPEAK           reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    GOTO            reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    TIMEOUT         reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    EXIT            reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    UPDATE          reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    ENDTIMEOUT      reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    ENDSWITCH       reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    DEFAULT         reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+    CASE            reduce using rule 44 (timeout -> TIMEOUT VAR expressions ENDTIMEOUT .)
+
+
+state 79
+
     (19) update -> UPDATE ID = terms .
-    (27) terms -> terms . + term
+    (36) terms -> terms . + term
 
     ENDSTATE        reduce using rule 19 (update -> UPDATE ID = terms .)
     SWITCH          reduce using rule 19 (update -> UPDATE ID = terms .)
@@ -1207,22 +1444,118 @@ state 68
     ENDSWITCH       reduce using rule 19 (update -> UPDATE ID = terms .)
     DEFAULT         reduce using rule 19 (update -> UPDATE ID = terms .)
     CASE            reduce using rule 19 (update -> UPDATE ID = terms .)
-    +               shift and go to state 56
+    +               shift and go to state 58
 
 
-state 69
+state 80
 
-    (36) default -> DEFAULT expressions ENDSWITCH .
+    (45) default -> DEFAULT expressions ENDSWITCH .
 
-    ENDSTATE        reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    SWITCH          reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    SPEAK           reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    GOTO            reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    TIMEOUT         reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    EXIT            reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    UPDATE          reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    ENDTIMEOUT      reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    ENDSWITCH       reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    DEFAULT         reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
-    CASE            reduce using rule 36 (default -> DEFAULT expressions ENDSWITCH .)
+    ENDSTATE        reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    SWITCH          reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    SPEAK           reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    GOTO            reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    TIMEOUT         reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    EXIT            reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    UPDATE          reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    ENDTIMEOUT      reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    ENDSWITCH       reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    DEFAULT         reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+    CASE            reduce using rule 45 (default -> DEFAULT expressions ENDSWITCH .)
+
+
+state 81
+
+    (30) compare -> RETURN > term .
+
+    SWITCH          reduce using rule 30 (compare -> RETURN > term .)
+    SPEAK           reduce using rule 30 (compare -> RETURN > term .)
+    GOTO            reduce using rule 30 (compare -> RETURN > term .)
+    TIMEOUT         reduce using rule 30 (compare -> RETURN > term .)
+    EXIT            reduce using rule 30 (compare -> RETURN > term .)
+    UPDATE          reduce using rule 30 (compare -> RETURN > term .)
+
+
+state 82
+
+    (31) compare -> RETURN < term .
+
+    SWITCH          reduce using rule 31 (compare -> RETURN < term .)
+    SPEAK           reduce using rule 31 (compare -> RETURN < term .)
+    GOTO            reduce using rule 31 (compare -> RETURN < term .)
+    TIMEOUT         reduce using rule 31 (compare -> RETURN < term .)
+    EXIT            reduce using rule 31 (compare -> RETURN < term .)
+    UPDATE          reduce using rule 31 (compare -> RETURN < term .)
+
+
+state 83
+
+    (32) compare -> RETURN LESS_EQUAL term .
+
+    SWITCH          reduce using rule 32 (compare -> RETURN LESS_EQUAL term .)
+    SPEAK           reduce using rule 32 (compare -> RETURN LESS_EQUAL term .)
+    GOTO            reduce using rule 32 (compare -> RETURN LESS_EQUAL term .)
+    TIMEOUT         reduce using rule 32 (compare -> RETURN LESS_EQUAL term .)
+    EXIT            reduce using rule 32 (compare -> RETURN LESS_EQUAL term .)
+    UPDATE          reduce using rule 32 (compare -> RETURN LESS_EQUAL term .)
+
+
+state 84
+
+    (33) compare -> RETURN GREATER_EQUAL term .
+
+    SWITCH          reduce using rule 33 (compare -> RETURN GREATER_EQUAL term .)
+    SPEAK           reduce using rule 33 (compare -> RETURN GREATER_EQUAL term .)
+    GOTO            reduce using rule 33 (compare -> RETURN GREATER_EQUAL term .)
+    TIMEOUT         reduce using rule 33 (compare -> RETURN GREATER_EQUAL term .)
+    EXIT            reduce using rule 33 (compare -> RETURN GREATER_EQUAL term .)
+    UPDATE          reduce using rule 33 (compare -> RETURN GREATER_EQUAL term .)
+
+
+state 85
+
+    (26) compare -> ID > term .
+
+    SWITCH          reduce using rule 26 (compare -> ID > term .)
+    SPEAK           reduce using rule 26 (compare -> ID > term .)
+    GOTO            reduce using rule 26 (compare -> ID > term .)
+    TIMEOUT         reduce using rule 26 (compare -> ID > term .)
+    EXIT            reduce using rule 26 (compare -> ID > term .)
+    UPDATE          reduce using rule 26 (compare -> ID > term .)
+
+
+state 86
+
+    (27) compare -> ID < term .
+
+    SWITCH          reduce using rule 27 (compare -> ID < term .)
+    SPEAK           reduce using rule 27 (compare -> ID < term .)
+    GOTO            reduce using rule 27 (compare -> ID < term .)
+    TIMEOUT         reduce using rule 27 (compare -> ID < term .)
+    EXIT            reduce using rule 27 (compare -> ID < term .)
+    UPDATE          reduce using rule 27 (compare -> ID < term .)
+
+
+state 87
+
+    (28) compare -> ID LESS_EQUAL term .
+
+    SWITCH          reduce using rule 28 (compare -> ID LESS_EQUAL term .)
+    SPEAK           reduce using rule 28 (compare -> ID LESS_EQUAL term .)
+    GOTO            reduce using rule 28 (compare -> ID LESS_EQUAL term .)
+    TIMEOUT         reduce using rule 28 (compare -> ID LESS_EQUAL term .)
+    EXIT            reduce using rule 28 (compare -> ID LESS_EQUAL term .)
+    UPDATE          reduce using rule 28 (compare -> ID LESS_EQUAL term .)
+
+
+state 88
+
+    (29) compare -> ID GREATER_EQUAL term .
+
+    SWITCH          reduce using rule 29 (compare -> ID GREATER_EQUAL term .)
+    SPEAK           reduce using rule 29 (compare -> ID GREATER_EQUAL term .)
+    GOTO            reduce using rule 29 (compare -> ID GREATER_EQUAL term .)
+    TIMEOUT         reduce using rule 29 (compare -> ID GREATER_EQUAL term .)
+    EXIT            reduce using rule 29 (compare -> ID GREATER_EQUAL term .)
+    UPDATE          reduce using rule 29 (compare -> ID GREATER_EQUAL term .)
 

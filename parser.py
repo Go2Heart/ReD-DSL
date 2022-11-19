@@ -143,9 +143,26 @@ class Parser:
         '''
         case : CASE STR expressions 
                 | CASE RETURN expressions
+                | CASE compare expressions
         '''
-        p[0] = ASTNode(('case', p[2]), *p[3])
-        
+        if isinstance(p[2], ASTNode):
+            p[0] = ASTNode(('case', p[2].type), *p[3])
+        else:
+            p[0] = ASTNode(('case', p[2]), *p[3])
+              
+    def p_condition(self, p):
+        '''
+            compare : ID '>' term
+                    | ID '<' term
+                    | ID LESS_EQUAL term
+                    | ID GREATER_EQUAL term
+                    | RETURN '>' term
+                    | RETURN '<' term
+                    | RETURN LESS_EQUAL term
+                    | RETURN GREATER_EQUAL term
+        '''
+        p[0] = ASTNode(('compare', p[1], p[2], p[3].type))
+    
     def p_speak(self, p):
         '''
         speak : SPEAK terms
@@ -196,11 +213,6 @@ class Parser:
         '''
         p[0] = ASTNode(('goto', p[2]))
     
-    # def p_id(self, p):
-    #     '''
-    #     id : ID
-    #     '''
-    #     p[0] = ASTNode(('id', p[1]))
         
     def p_timeout(self, p):
         '''

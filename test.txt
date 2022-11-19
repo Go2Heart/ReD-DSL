@@ -38,9 +38,12 @@ endState
 state withdraw
     speak "How much would you like to withdraw?"
     switch
-        case _return
+        case _return <= x
             speak "You have withdrawn " + _return + " dollars"
             update x = x MINUS _return
+            goto welcome
+        case _return > x
+            speak "You do not have enough money in your account!"
             goto welcome
     endSwitch
     timeout $30 
@@ -53,9 +56,12 @@ endState
 state topup
     speak "How much would you like to top up?"
     switch
-        case _return
+        case _return >= $0
             speak "You have topped up " + _return + " dollars"
             update x = x PLUS _return
+            goto welcome
+        case _return < $0
+            speak "You cannot top up a negative amount!"
             goto welcome
     endSwitch
     timeout $30 
@@ -65,10 +71,12 @@ state topup
 endState
 
 state goodbye
-    speak "Goodbye, world!"
+    speak "Are you sure you want to exit?[yes/no]"
     switch 
-        case "goodbye"
+        case "yes"
             exit
+        case "no"
+            goto welcome
         default
             speak "not quite understood"
     endSwitch

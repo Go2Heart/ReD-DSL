@@ -51,7 +51,7 @@ class Controller:
         output = ""
         is_transferred = False
         self._return = condition
-        self.state_machine._update_return_value(condition, username)
+        self.state_machine.update_return_value(condition, username)
         if condition not in self.action_table[current_state].keys():
             if '_return' in self.action_table[current_state].keys(): # if there is a return condition
                 for action in self.action_table[current_state]['_return']:
@@ -85,7 +85,23 @@ class Controller:
                     else:
                         raise Exception("Invalid action")
             else:
-                raise Exception("Invalid condition")
+                for key in self.action_table[current_state].keys():
+                    if isinstance(key, tuple) and self.state_machine.test(condition, key[1], username): # it's a compare condition and it's true
+                        for action in self.action_table[current_state][key]:
+                            if action.type == "goto":
+                                next_state = action()
+                                is_transferred = True
+                                break
+                            elif action.type == "speak":
+                                output += action(username)
+                                output += "\n"
+                            elif action.type == "exit":
+                                action()
+                            elif action.type == "update":
+                                action(username)
+                            else:
+                                raise Exception("Invalid action")   
+                        break
         else:
             for action in self.action_table[current_state][condition]:
                 if action.type == "goto":
@@ -115,8 +131,8 @@ class Controller:
                     action(username)
                 else:
                     raise Exception("Invalid action")
-        timeout = self.state_machine.action_dict[next_state].get("<timeout_value>", None)
-        return next_state, output, timeout
+        timeout = self.state_machine.action_dict[next_state].get("<timeout_value>", 999)
+        return next_state, output, int(timeout)
     
     
                     

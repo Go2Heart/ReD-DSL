@@ -46,4 +46,4 @@ if __name__ == "__main__":
                 current_state, condition, "test")
         except TimeoutError:
             current_state,output, timeout = controller.accept_condition(
-                current_state, "<on_timeout>:10", "test")
+                current_state, "<on_timeout>", "test")
