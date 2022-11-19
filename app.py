@@ -57,7 +57,6 @@ def send():
             state = controller.state_machine.initial_state
         
         next_state, output, timeout = controller.accept_condition(state, msg, user["username"])
-        print(output)
     except Exception as e:
         print(e)
         return jsonify({"msg": "An exception has taken place, please try again!\n" + str(e) }), 400

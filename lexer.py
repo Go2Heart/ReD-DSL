@@ -35,7 +35,7 @@ class Lexer:
     ] + list(keywords.values())
     t_ignore = ' \t\n'
 
-    literals = ['+', '-', '=']
+    literals = ['+', '-', '=', '>', '<']
 
     def __init__(self):
         """
