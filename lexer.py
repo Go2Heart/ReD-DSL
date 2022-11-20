@@ -84,7 +84,7 @@ class Lexer:
         if not self._input:
             raise RuntimeError('reading token before load.')
         return self._lexer.token()
-    
+
     def t_LESS_EQUAL(self, t):
         r'<='
         return t
@@ -107,7 +107,6 @@ class Lexer:
         r'"[^"]*"'
         t.value = t.value[1:-1]
         return t
-
 
     def t_error(self, t):
         raise SyntaxError(f'Illegal character {t.value[0]}')

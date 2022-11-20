@@ -18,12 +18,6 @@ class ASTNode:
         """
         print('  ' * indent, self.type)
         for child in self.childs:
-            # if isinstance(child, str):
-            #     print('  ' * (indent+1), "str: ",child)
-            # elif isinstance(child, list):
-            #      for c in child:
-            #          c.print(indent + 1)
-            # else:
             child.print(indent + 1)
         
 class Parser:

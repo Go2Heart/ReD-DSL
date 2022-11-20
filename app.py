@@ -3,7 +3,7 @@ import sys
 import jwt
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS, cross_origin
-from parser import Parser, ASTNode
+from yacc import Parser, ASTNode
 from lexer import Lexer
 from interpreter import StateMachine, CallBack
 from controller import Controller
@@ -14,12 +14,8 @@ import sys
 secret = "secret"
 
 
-
-
 app = Flask(__name__)
-#app.debug = True
-#app.secret_key = 'development key'
-#toolbar = DebugToolbarExtension(app)
+
 
 lexer = Lexer()
 parser = Parser(lexer, debug=False)
@@ -36,8 +32,9 @@ def connect():
         @brief: this is the connection test
     """
     username = "test"
-    token = jwt.encode({"username": username}, secret, algorithm="HS256")  
-    return jsonify({"username": username, "token": token }), 200
+    token = jwt.encode({"username": username}, secret, algorithm="HS256")
+    return jsonify({"username": username, "token": token}), 200
+
 
 @app.route("/send")
 @cross_origin()
@@ -55,12 +52,14 @@ def send():
         user = jwt.decode(token, secret, algorithms=["HS256"])
         if state is None or state == '':
             state = controller.state_machine.initial_state
-        
-        next_state, output, timeout = controller.accept_condition(state, msg, user["username"])
+
+        next_state, output, timeout = controller.accept_condition(
+            state, msg, user["username"])
     except Exception as e:
         print(e)
-        return jsonify({"msg": "An exception has taken place, please try again!\n The error info:" + str(e) + '\n' }), 400
-    return jsonify({"msg":output, "next_state": next_state, "timeout": timeout}), 200
+        return jsonify({"msg": "An exception has taken place, please try again!\n The error info:" + str(e) + '\n'}), 400
+    return jsonify({"msg": output, "next_state": next_state, "timeout": timeout}), 200
+
 
 @app.route("/register")
 @cross_origin()
@@ -80,7 +79,8 @@ def register():
     except Exception as e:
         print(e)
         return jsonify({"msg": str(e)}), 400
-    return jsonify({"username": username, "token": token , "msg": msg}), 200
+    return jsonify({"username": username, "token": token, "msg": msg}), 200
+
 
 @app.route("/login")
 @cross_origin()
@@ -90,7 +90,7 @@ def login():
         @param: {"username" : "some username", "password": "some password"}
         @return {"username: "some username", "token": "some token"}
         @note: if the username or password is wrong, return 400
-    """   
+    """
     try:
         username = request.args["username"]
         password = request.args["password"]
@@ -100,7 +100,8 @@ def login():
     except Exception as e:
         print(e)
         return jsonify({"msg": str(e)}), 400
-    return jsonify({"username": username, "token": token ,"msg": msg}), 200
+    return jsonify({"username": username, "token": token, "msg": msg}), 200
+
 
 if __name__ == "__main__":
     from waitress import serve

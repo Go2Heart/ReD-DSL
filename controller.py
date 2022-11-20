@@ -1,4 +1,4 @@
-from parser import Parser, ASTNode
+from yacc import Parser, ASTNode
 from lexer import Lexer
 from interpreter import StateMachine, CallBack
 

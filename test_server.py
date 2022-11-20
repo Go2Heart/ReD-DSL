@@ -2,7 +2,7 @@
     @brief: this defines a least runable script to test the state machine
 """
 
-from parser import Parser, ASTNode
+from yacc import Parser, ASTNode
 from lexer import Lexer
 from interpreter import StateMachine, CallBack
 from controller import Controller
@@ -39,7 +39,6 @@ if __name__ == "__main__":
     current_state = controller.state_machine.initial_state
     current_state,output, timeout = controller.accept_condition(current_state, "<on_enter>", "test")
     while True:
-        #print("Current state: ", current_state)
         try:
             condition = input_with_timeout(None, timeout)
             current_state,output, timeout = controller.accept_condition(

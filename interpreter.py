@@ -6,7 +6,7 @@
         3. Extracts the actions of DSL code and creates a action
 """
 import os
-from parser import Parser, ASTNode
+from yacc import Parser, ASTNode
 from lexer import Lexer
 from storm.locals import create_database, Store
 from storm.properties import Unicode, Int, Float
