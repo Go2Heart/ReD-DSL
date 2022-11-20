@@ -1,5 +1,4 @@
-"""
-    @brief: this defines a least runable script to test the state machine
+"""brief: this defines a least runable script to test the state machine
 """
 
 from yacc import Parser, ASTNode
@@ -11,6 +10,18 @@ import sys
 
 
 def input_with_timeout(prompt, timeout):
+    """Input with timeout
+    
+    Args:
+        prompt: the prompt message
+        timeout: the timeout value
+    
+    Returns:
+        the input string
+    
+    Raises:
+        TimeoutError: if the timeout is reached
+    """
     if prompt is not None:
         sys.stdout.write(prompt)
     sys.stdout.flush()
@@ -21,9 +32,7 @@ def input_with_timeout(prompt, timeout):
 
 
 def test_input(current_state):
-    """
-        @brief: test input function using threading
-    """
+    """ test input function using threading"""
     input_string = input()
     current_state = controller.accept_condition(current_state, input_string, "test")
 

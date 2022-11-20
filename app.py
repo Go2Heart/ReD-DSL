@@ -1,3 +1,18 @@
+"""This is the backend of the application.
+
+It is responsible for the following:
+    1. Parsing the script
+    2. Generating the AST
+    3. Constructing the state machine and action table
+    4. Handling the user input
+    5. Executing the action table
+    6. Sending the output to the frontend
+
+It uses RESTful API to communicate with the frontend.
+Every time the frontend sends a request to the backend, the backend will
+return a JSON object containing the corresponding fields.
+"""
+
 import os
 import sys
 import jwt
@@ -27,10 +42,9 @@ input_string = ""
 
 
 @app.route("/")
+@cross_origin()
 def connect():
-    """
-        @brief: this is the connection test
-    """
+    """this is the connection test"""
     username = "test"
     token = jwt.encode({"username": username}, secret, algorithm="HS256")
     return jsonify({"username": username, "token": token}), 200
@@ -39,11 +53,15 @@ def connect():
 @app.route("/send")
 @cross_origin()
 def send():
-    """
-        @brief: this is the send api
-        @param: {"msg": "some message", "state": "current_state", "token": "some token"}
-        @return {"msg": "some message", "state": "next_state", "exit": "true/false"}
-        @note: if the token is invalid, return 400
+    """this is the send api
+    Args:
+        Http GET Message: {"msg": "some message", "state": "current_state", "token": "some token"}
+        
+    Returns:
+        {"msg": "some message", "state": "next_state", "exit": "true/false"} and HTTP status code 200
+    
+    Raises:    
+        if the token is invalid, return HTTP Error 401 with error message
     """
     try:
         msg = request.args["msg"]
@@ -57,18 +75,23 @@ def send():
             state, msg, user["username"])
     except Exception as e:
         print(e)
-        return jsonify({"msg": "An exception has taken place, please try again!\n The error info:" + str(e) + '\n'}), 400
+        return jsonify({"msg": "An exception has taken place, please try again!\n The error info:" + str(e) + '\n'}), 401
     return jsonify({"msg": output, "next_state": next_state, "timeout": timeout}), 200
 
 
 @app.route("/register")
 @cross_origin()
 def register():
-    """
-        @brief: this is the register api
-        @param: {"username" : "some username", "password": "some password"}
-        @return {"username": "some username", "token": "some token"}
-        @note: if the username is already taken, return 400
+    """this is the register api
+    
+    Args:
+        Http GET Message:{"username" : "some username", "password": "some password"}
+    
+    Returns:
+        {"username": "some username", "token": "some token"}
+        
+    Raises:
+        if the username is already taken, return HTTP Error 401 with error message
     """
     try:
         username = request.args["username"]
@@ -78,18 +101,23 @@ def register():
         msg = "Welcome to the game, " + username + "!"
     except Exception as e:
         print(e)
-        return jsonify({"msg": str(e)}), 400
+        return jsonify({"msg": str(e)}), 401
     return jsonify({"username": username, "token": token, "msg": msg}), 200
 
 
 @app.route("/login")
 @cross_origin()
 def login():
-    """
-        @brief: this is the login api
-        @param: {"username" : "some username", "password": "some password"}
-        @return {"username: "some username", "token": "some token"}
-        @note: if the username or password is wrong, return 400
+    """this is the login api
+    
+    Args:
+        Http GET Message:{"username" : "some username", "password": "some password"}
+        
+    Returns:
+        {"username: "some username", "token": "some token"}
+        
+    Raises:
+        if the username or password is wrong, return 400 with error message
     """
     try:
         username = request.args["username"]

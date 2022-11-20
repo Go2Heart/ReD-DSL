@@ -1,8 +1,21 @@
+"""lexer is a module that contains the Lexer class, which is used to tokenize the input script
+
+Typical usage example:
+
+lexer = Lexer()
+lexer.load_script(script)
+"""
 from ast import keyword
 from ply.lex import lex
 
 
 class Lexer:
+    """Lexer is for tokenizing the input script
+    
+    Attributes:
+        _lexer: the lexer object
+        input: the input target
+    """
 
     keywords = {
         "real": "REAL",
@@ -40,8 +53,7 @@ class Lexer:
     literals = ['+', '-', '=', '>', '<']
 
     def __init__(self):
-        """
-            init the lexer
+        """init the lexer
             self._lexer is the lexer object
             self._input is the input target
         """
@@ -49,24 +61,24 @@ class Lexer:
         self._input = None
 
     def getLexer(self):
-        """
-            get the lexer object
-        """
+        """get the lexer object"""
         return self._lexer
 
     def load_str(self, input):
-        """
-            load the input string
-            @param input: the input string
+        """load the input string
+        
+        Args:
+            input: the input string
         """
         self._input = input
         self._lexer.input(input)
         self._lexer.lineno = 1
 
     def load_script(self, path):
-        """
-            load the script file
-            @param path: the script file path
+        """load the script file
+           
+        Args:
+            path: the script file path
         """
         self._input = None
         with open(path, 'r', encoding='utf8') as f:
@@ -78,9 +90,7 @@ class Lexer:
         self._lexer.lineno = 1
 
     def token(self):
-        """
-            get the next token
-        """
+        """get the next token"""
         if not self._input:
             raise RuntimeError('reading token before load.')
         return self._lexer.token()
@@ -100,7 +110,7 @@ class Lexer:
 
     def t_VAR(self, t):
         r'\$[a-zA-Z_0-9]*'
-        t.value = t.value[1:]  # remove the $
+        t.value = t.value[1:]    # remove the $
         return t
 
     def t_STR(self, t):
@@ -115,7 +125,6 @@ class Lexer:
 
 if __name__ == "__main__":
     lexer = Lexer()
-    #lexer.load_str("test variable test $123 \"123\"")
     lexer.load_script("test.txt")
     token = lexer.token()
     while token:

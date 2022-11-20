@@ -1,36 +1,64 @@
+"""yacc is a parser generator for ReD-DSL.
+
+Typical usage example:
+parser = Parser(lexer)
+parser.parse(script)
+"""
 from ply.yacc import yacc
 from lexer import Lexer
 
 
 class ASTNode:
-    """
-        Abstract syntax tree node
+    """Abstract syntax tree node
+    
+    Attributes:
+        type: the type of the node
+        childs: the child nodes
+        
     """
     def __init__(self, type, *child):
+        """init the AST node"""
         self.type = type
         self.childs = list(child)
     
     def __str__(self):
+        """return the string representation of the AST"""
         return str(self.type)
     def print(self, indent=0):
-        """
-            print the AST
+        """print the AST
+        
+        Args:
+            indent: the indent of the current node
         """
         print('  ' * indent, self.type)
         for child in self.childs:
             child.print(indent + 1)
         
 class Parser:
-    def __init__(self, lexer:Lexer, debug=False): #TODO add config
+    """Parse the script and return the AST
+    
+    Attributes:
+        _lexer: the lexer
+        tokens: the tokens
+        _yacc: the yacc parser
+        debug: the debug mode
+        
+    """
+    def __init__(self, lexer:Lexer, debug=False):
+        """init the parser"""
         self._lexer = lexer
         self.tokens = lexer.tokens
         self._yacc = yacc(module=self, debug=True)
         self.debug = debug
     
     def parse(self, script):
-        """
-            parse a script
-            @param script: the script to parse
+        """parse a script
+        
+        Args:
+            script: the script to parse
+            
+        Returns:
+            the AST of the script
         """
         return self._yacc.parse(script, self._lexer.getLexer())
     
@@ -86,7 +114,7 @@ class Parser:
         '''
         state : STATE ID expressions ENDSTATE
         '''
-        p[0] = ASTNode(('state', p[2]), *p[3]) # where p[3] is a list of expression AST Nodes.
+        p[0] = ASTNode(('state', p[2]), *p[3])  # where p[3] is a list of expression AST Nodes.
         
     def p_expressions(self, p):
         '''
@@ -94,11 +122,10 @@ class Parser:
                     | expressions expression
         '''
         if len(p) == 2:
-            p[0] = [p[1]] # where p[1] is an expression AST Node.
+            p[0] = [p[1]]  # where p[1] is an expression AST Node.
         else:
             p[0] = p[1] + [p[2]]
             
-    #def p_expressions_switch(self, p):
         
             
     def p_expression(self, p):

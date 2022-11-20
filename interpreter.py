@@ -1,9 +1,36 @@
-"""
-    Using the Abstract Syntax Tree (AST) of the Python code, this module
-    performs the following tasks:
-        1. Extracts the states of DSL code and creates a state machine
-        2. Extracts the transitions of DSL code and creates a transition
-        3. Extracts the actions of DSL code and creates a action
+""" Consists of the UserVariableSet class and CallBack class and StateMachine class 
+
+StateMachine class:
+
+StateMachine Using the Abstract Syntax Tree (AST) of the Python code, this module performs the following tasks:
+    1. Extracts the states of DSL code and creates a state machine
+    2. Extracts the transitions of DSL code and creates a transition
+    3. Extracts the actions of DSL code and creates a action
+    
+Typical usage example:
+
+state_machine = StateMachine(AST)
+state_machine.interpret()
+state_machine.build_database("./database.db")
+
+CallBack class:
+
+CallBack class is used to create a callback function for the actions of DSL code.
+
+Typical usage example:
+
+action = CallBack("print", "Hello World")
+action()
+
+UserVariableSet class:
+
+UserVariableSet class is used to store the user variables.
+
+Typical usage example:
+
+user_variable_set = UserVariableSet()
+setattr(user_variable_set, "username", "Guest")
+    
 """
 import os
 from yacc import Parser, ASTNode
@@ -14,8 +41,12 @@ from threading import Lock
 
 
 class UserVariableSet(object):
-    """
-        @brief: creates a new user variable set
+    """creates a new user variable set
+    
+    Attributes:
+        username (str): the username of the user
+        passwd (str): the password of the user
+        
     """
     __storm_table__ = 'user_variable'
     column_type = {"username": "Text", "passwd": "Text"}
@@ -23,19 +54,24 @@ class UserVariableSet(object):
     passwd = Unicode()
 
     def __init__(self, username: str, passwd: str):
+        """Inits UserVariableSet with username and passwd"""
         self.username = username
         self.passwd = passwd
 
 
 
 class CallBack(object):
-    """
-        CallBack class used to perform the actions of the DSL code
+    """CallBack class used to perform the actions of the DSL code
+    
+    Attributes:
+        callback (function): the callback function
+        args (tuple): the arguments of the callback function
+        type (str): the type of the callback function
     """
     def __init__(self, callback, *args):
+        """Inits CallBack with callback and args"""
         self.callback = callback
         self.args = args
-        #self.kwargs = kwargs
         self.type = ""
         if self.callback.__name__ == "_speak_action":
             self.type = "speak"
@@ -49,22 +85,36 @@ class CallBack(object):
             raise Exception("Unknown action type")
         
     def __call__(self, *args): 
-        return self.callback(*self.args,*args)
-    
-    def call(self, *args): #used for the later input of the arguments
+        """calls the callback function"""
         return self.callback(*self.args,*args)
     
     def __str__(self) -> str:
+        """returns the string representation of the CallBack object"""
         return f"CallBack({self.callback}, {self.args})\n"
     
     def __repr__(self) -> str:
-        #return f"CallBack({self.callback}, {self.args}, {self.kwargs})\n"
+        """returns the string representation of the CallBack object"""
         return f"CallBack({self.callback.__name__}, {self.args})\n"
 class StateMachine:
-    """
-        This class creates a state machine transition table
+    """This class creates a state machine transition table
+    
+    StateMachine will not create one instance for each state, but provides a dictionary of states transition table.
+    Thus, the memory usage is reduced. And for all users, only one instance of StateMachine is created. They share the same state machine.
+    Only the user variables are different. They are stored in the database. Users can only read and write their own variables. 
+    Users will query the transition table of the state machine to get the next state and the actions of the next state.
+    
+    Attributes:
+        AST (ASTNode): the abstract syntax tree of the DSL code
+        states_dict (dict): the states of the state machine
+        states_content (list): the content of the states
+        initial_state (str): the initial state of the state machine
+        debug (bool): the debug mode
+        variable_dict (dict): the variables of the state machine
+        action_dict (dict): the actions of the state machine
+        compare_list (list): the list of the comparison operators
     """
     def __init__(self, AST : ASTNode, debug=False):
+        """Inits StateMachine with AST and debug"""
         self.AST = AST
         self.states_dict = dict()
         self.states_content = []
@@ -73,12 +123,17 @@ class StateMachine:
         self.variable_dict = dict()
         self.action_dict = dict()
         self.compare_list = []
-        #self._extract_states()
 
     def __str__(self):
+        """returns the string representation of the StateMachine object"""
         return "States: " + str(self.states_dict) + "\nAction Table: " + str(self.action_dict) + "\nInitial State: " + str(self.initial_state) + "\nVariables: " + str(self.variable_dict)
     
     def build_database(self, path):
+        """builds the database of the state machine
+        
+        Args:
+            path (str): the path of the database
+        """
         global database, db_lock
         dir, file_name = os.path.split(path)
         if file_name in os.listdir(dir):
@@ -106,6 +161,11 @@ class StateMachine:
     
             
     def interpret(self):
+        """interprets the DSL code and builds the state machine transition table
+        
+        Raises:
+            Exception: if the DSL code is invalid
+        """
         for declaration in self.AST.childs:
             if declaration.type == 'variables':
                 for var in declaration.childs:
@@ -114,12 +174,12 @@ class StateMachine:
                 for state in declaration.childs:
                     if self.debug:
                         print(state)
-                    self.states_content.append(state) # Save the states content in the list
-                    self.states_dict[state.type[1]] = {} # create a dictionary for the state
+                    self.states_content.append(state)   # Save the states content in the list
+                    self.states_dict[state.type[1]] = {}    # create a dictionary for the state
                 if 'welcome' not in self.states_dict.keys():
                     raise Exception("No welcome state found. A welcome state is required.")
                 self.states_dict[self.initial_state] = {} 
-                self.action_dict[self.initial_state] = {} # create a action dictionary for the initial state
+                self.action_dict[self.initial_state] = {}   # create a action dictionary for the initial state
                 self.action_dict[self.initial_state]['<on_enter>'] = [CallBack(self._goto_action, 'welcome')]
                 if self.debug:
                     for state in self.states_content:
@@ -131,9 +191,10 @@ class StateMachine:
     
 
     def _interpret_variable(self, var):
-        """
-            @brief: interprets a variable declaration and adds it to the variables database
-            @param: var is a quad of ('var', var_id, type, value)
+        """interprets a variable declaration and adds it to the variables dictionary
+            
+        Args:
+            var: var is a quad of ('var', var_id, type, value)
             
         """
         if(self.debug):
@@ -141,15 +202,16 @@ class StateMachine:
         self.variable_dict[var[1]] = [var[2], var[3]]
         
     def _interpret_state(self, state):
-        """
-            @brief: interprets a state declaration and adds it to the state machine
-            @param:state is a duo of ('state', state_id) followed by a list of 
-            clauses of {speak}, {switch}, {timeout}, {default}
+        """interprets a state declaration and adds it to the state machine
+        
+        Args:
+            state:state is a duo of ('state', state_id) followed by a list of clauses of {speak}, {switch}, {timeout}, {default}
+            
         """
         state_name = state.type[1]
         for clause in state.childs:
             if clause.type == 'speak':
-                speaks = clause.childs # only one child
+                speaks = clause.childs   # only one child
                 for speak in speaks:
                     try: 
                         self.action_dict[state_name]['<on_enter>'].append(CallBack(self._speak_action, speak))
@@ -157,7 +219,7 @@ class StateMachine:
                         self.action_dict[state_name]['<on_enter>'] = [CallBack(self._speak_action, speak)]
                     
             elif clause.type == 'switch':
-                terms = clause.childs # for all cases, the action can only speak, goto, exit
+                terms = clause.childs   # for all cases, the action can only speak, goto, exit or update
                 for term in terms:
                     if term.type =='default' or term.type[0] == 'case':
                         case_condition = term.type[1] if term.type[0] == 'case' else '<default>'
@@ -175,9 +237,10 @@ class StateMachine:
                 raise Exception("Unknown clause type", clause)
                       
     def _speak_action(self, terms, username="Guest"):
-        """
-            @brief: performs the speak action
-            @param: term is a the child nodes of the speak clause
+        """performs the speak action
+        Args: 
+            term: term is a the child nodes of the speak clause
+            username: the username of the user
         """
         text = ""
         for term in terms.childs:
@@ -186,26 +249,27 @@ class StateMachine:
         return text
 
     def _goto_action(self, new_state):
-        """
-            @brief: performs the goto action
-            @param: new_state is the state to go to
+        """performs the goto action
+        
+        Args:
+            new_state: new_state is the state to go to
         """
         if(self.debug): 
             print("Going to state", new_state)
         return new_state
     
     def _exit_action(self):
-        """
-            @brief: performs the exit action
-        """
+        """performs the exit action"""
         if(self.debug): 
             print("Exiting")
         return 'exit'
     
     def update_return_value(self, value, username="Guest"):
-        """
-            @brief: updates the return value
-            @param: value is the value to return
+        """updates the return value
+            
+        Args:
+            value: value is the value to return
+            username: the username of the user
         """
         global db_lock, database
         with db_lock:
@@ -216,11 +280,17 @@ class StateMachine:
             store.close()
     
     def _update_action(self, id, calculation, username="Guest"):
-        """
-            @brief: performs the update action
-            @param: id is the id of the variable to update
-            @param: calculation is the calculation to perform
-            @param: is_return is a boolean to indicate if the update involves a return value from the user
+        """performs the update action
+        
+        Args:
+            id: id is the id of the variable to update
+            calculation: calculation is the calculation to perform
+            username: the username of the user
+            
+        Raises:
+            Exception: if the variable is not found
+            Exception: if the calculation is invalid
+            Exception: if the variable is not a number
         """
         if calculation.type[0] == 'calc':
             if calculation.type[1] == 'PLUS':
@@ -241,9 +311,18 @@ class StateMachine:
             raise Exception("Unknown manipulation type")
     
     def _get_value(self, term, username):
-        """
-            @brief: gets the value of the term
-            @param: term is the term to get the value from
+        """gets the value of the term of the user
+        
+        Args:
+            term: term is the term to get the value from
+            username: the username of the user
+            
+        Returns:
+            the value of the term
+            
+        Raises: 
+            Exception: if the variable is not found
+            Exception: if the variable type is unknown
         """
         global database, db_lock
         with db_lock:
@@ -265,17 +344,24 @@ class StateMachine:
             
         
     def _extract_actions(self, current_state, condition, actions):
+        """extracts the actions from the actions clause and adds them to the state machine transition table
+        
+        Args:
+            current_state: current_state is the current state
+            condition: condition is the condition to perform the actions
+            actions: actions is the list of actions to perform
+            
+        Raises:
+            Exception: if the action type is unknown
+        """
         for action in actions:
             action_func = None
             if action.type == 'speak':
                 action_func = CallBack(self._speak_action, action.childs[0])
-                #self.action_dict[current_state][condition] = CallBack(self._speak_action, action.childs[0])
             elif action.type == 'exit':
                 action_func = CallBack(self._exit_action)
-                #self.action_dict[current_state][condition] = CallBack(self._exit_action)
             elif action.type[0] == 'goto':
                 action_func = CallBack(self._goto_action, str(action.type[1]))
-                #self.action_dict[current_state][condition] = CallBack(self._goto_action, action.type[1])
             elif action.type[0] == 'update':
                 action_func = CallBack(self._update_action, action.type[1], action.childs[0])
             else:
@@ -286,10 +372,17 @@ class StateMachine:
                 self.action_dict[current_state][condition] = [action_func]
                 
     def _register(self, username, passwd):
-        """
-            @brief: registers a new user
-            @param: username is the username of the new user
-            @param: passwd is the password of the new user
+        """registers a new user
+        
+        Args:
+            username: the username of the new user
+            passwd: the password of the new user
+            
+        Returns:
+            "Registered" if the user was registered successfully
+            
+        Raises:
+            Exception: if the user already exists
         """
         global database, db_lock
         with db_lock:
@@ -300,14 +393,21 @@ class StateMachine:
             store.add(UserVariableSet(username, passwd))
             store.commit()
             store.close()
-        return "Registered"
+        return True
     
     def _login(self, username, passwd):
-        """
-            @brief: logs in a user
-            @param: username is the username of the user
-            @param: passwd is the password of the user
-            @return: True if the user is logged in, Exception otherwise
+        """logs in a user
+        
+        Args:
+            username: the username of the user
+            passwd: the password of the user
+            
+        Returns:
+            True if the user is logged in, Exception otherwise
+            
+        Exceptions:
+            Exception: if the user does not exist
+            Exception: if the password is incorrect
         """
         global database, db_lock
         with db_lock:
@@ -323,11 +423,17 @@ class StateMachine:
         return True
     
     def test(self, condition, num, username="Guest"):
-        """
-            @brief: tests the condition
-            @param: condition is the condition to test
-            @param: num is the entry to compare list
-            @return True if the condition is true, False otherwise
+        """tests the condition
+        
+        Args:
+            condition: the condition to test
+            num: the entry to compare list
+            
+        Returns:
+            True if the condition is true, False otherwise
+            
+        Raises:
+            Exception: if the condition type is unknown
         """
         compare = self.compare_list[num]
         compare_source = float(condition) if compare[1] == '_return' else float(self._get_value(ASTNode(('id', compare[1])), username))
@@ -353,7 +459,6 @@ if __name__ == "__main__":
     with open("test.txt", "r") as f:
         script = f.read()
     ASTNode = parser.parse(script)
-    #ASTNode.print()
     state_machine = StateMachine(ASTNode, debug=True)
     state_machine.interpret()
     print(state_machine)
