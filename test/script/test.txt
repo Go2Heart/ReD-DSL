@@ -1,4 +1,4 @@
-script test
+script bank
 variable
     x real $100
     y integer $100
