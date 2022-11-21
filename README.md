@@ -8,7 +8,7 @@
 
 
 
-**<div align = "right">严怡彬</div>**
+
 
 
 
@@ -54,7 +54,6 @@
 
 <div style="page-break-after:always"></div>
 
-[TOC]
 
 <div style="page-break-after:always"></div>
 
@@ -82,7 +81,7 @@ ReD-DSL主要有以下几个特点：
 
 使用C语言标准BNF(*The C programming language*, 2nd edition, by Brian W. Kernighan and Dennis M. Ritchie,Prentice Hall, 1988.)进行定义
 
-```gas
+```
 <script>				::= "script" <id> <variables_defination> <states_defination>
 <variables_defination>  ::= "variable" <var_clauses> "endVariable"
 <var_clauses>			::= <var_clause> | <var_clauses>  <var_clause>
@@ -97,7 +96,7 @@ ReD-DSL主要有以下几个特点：
 <switch> 				::= "switch" <cases> <default> "endSwitch" | "switch" <cases> "endSwitch"
 <cases>					::= <case> | <cases> <case>
 <case> 					::= "case" <string> <expressions> | "case" <return> <expressions> | "case" <compare> <expressions>
-<compare>				::= <identifier> '>' <term> | <identifier> '<' <term> | <identifier> '>=' <term> | <identifier> '<=' 								<term> | <return> '>' <term> | <return> '<' <term> | <return> '>=' <term> | <return> '<=' <term>
+<compare>				::= <identifier> '>' <term> | <identifier> '<' <term> | <identifier> '>=' <term> | <identifier> '<=' <term> | <return> '>' <term> | <return> '<' <term> | <return> '>=' <term> | <return> '<=' <term>
 <goto>					::= "goto" <identifier>
 <timeout> 				::= "timeout" <variable> <expressions> "endTimeout"
 <exit>					::= "exit"
