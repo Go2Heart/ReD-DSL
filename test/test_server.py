@@ -1,12 +1,13 @@
 """brief: this defines a least runable script to test the state machine
-"""
 
-from yacc import Parser, ASTNode
-from lexer import Lexer
-from interpreter import StateMachine, CallBack
-from controller import Controller
-import select
+Copyright (c) 2022 Yibin Yan
+"""
 import sys
+from server.yacc import Parser
+from server.lexer import Lexer
+from server.controller import Controller
+import select
+
 
 
 def input_with_timeout(prompt, timeout):
@@ -46,12 +47,12 @@ if __name__ == "__main__":
     controller.register("test", "test")
     input_string = ""
     current_state = controller.state_machine.initial_state
-    current_state,output, timeout = controller.accept_condition(current_state, "<on_enter>", "test")
-    while True:
+    current_state,output, timeout, exit = controller.accept_condition(current_state, "<on_enter>", "test")
+    while (exit == False):
         try:
             condition = input_with_timeout(None, timeout)
-            current_state,output, timeout = controller.accept_condition(
+            current_state,output, timeout, exit = controller.accept_condition(
                 current_state, condition, "test")
         except TimeoutError:
-            current_state,output, timeout = controller.accept_condition(
+            current_state,output, timeout, exit = controller.accept_condition(
                 current_state, "<on_timeout>", "test")

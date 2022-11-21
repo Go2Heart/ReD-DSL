@@ -33,12 +33,11 @@ setattr(user_variable_set, "username", "Guest")
     
 """
 import os
-from yacc import Parser, ASTNode
-from lexer import Lexer
+from server.yacc import Parser, ASTNode
+from server.lexer import Lexer
 from storm.locals import create_database, Store
 from storm.properties import Unicode, Int, Float
 from threading import Lock
-
 
 class UserVariableSet(object):
     """creates a new user variable set
@@ -46,7 +45,6 @@ class UserVariableSet(object):
     Attributes:
         username (str): the username of the user
         passwd (str): the password of the user
-        
     """
     __storm_table__ = 'user_variable'
     column_type = {"username": "Text", "passwd": "Text"}
@@ -112,8 +110,9 @@ class StateMachine:
         variable_dict (dict): the variables of the state machine
         action_dict (dict): the actions of the state machine
         compare_list (list): the list of the comparison operators
+        db_path (str): the path of the database
     """
-    def __init__(self, AST : ASTNode, debug=False):
+    def __init__(self, AST : ASTNode, db_path="./database.db",debug=False):
         """Inits StateMachine with AST and debug"""
         self.AST = AST
         self.states_dict = dict()
@@ -123,12 +122,138 @@ class StateMachine:
         self.variable_dict = dict()
         self.action_dict = dict()
         self.compare_list = []
+        self.db_path = db_path
 
     def __str__(self):
         """returns the string representation of the StateMachine object"""
         return "States: " + str(self.states_dict) + "\nAction Table: " + str(self.action_dict) + "\nInitial State: " + str(self.initial_state) + "\nVariables: " + str(self.variable_dict)
     
-    def build_database(self, path):
+    def interpret(self):
+        """interprets the DSL code and builds the state machine transition table
+        
+        Raises:
+            Exception: if the DSL code is invalid
+        """
+        for declaration in self.AST.childs:
+            if declaration.type == 'variables':
+                for var in declaration.childs:
+                    self._interpret_variable(var.type)
+            elif declaration.type == 'states':
+                for state in declaration.childs:
+                    if self.debug:
+                        print(state)
+                    self.states_content.append(state)   # Save the states content in the list
+                    self.states_dict[state.type[1]] = {}    # create a dictionary for the state
+                if 'welcome' not in self.states_dict.keys():
+                    raise Exception("No welcome state found. A welcome state is required.")
+                self.states_dict[self.initial_state] = {} 
+                self.action_dict[self.initial_state] = {}   # create a action dictionary for the initial state
+                self.action_dict[self.initial_state]['<on_enter>'] = [CallBack(self._goto_action, 'welcome')]
+                if self.debug:
+                    for state in self.states_content:
+                        print(state.print())
+                        
+        for state in self.states_content: 
+            self.action_dict[state.type[1]] = {} # keys should be user events
+            self._interpret_state(state)
+        
+        self._build_database(self.db_path)
+        
+    def test(self, condition, num, username="Guest"):
+        """tests the condition
+        
+        Args:
+            condition: the condition to test
+            num: the entry to compare list
+            
+        Returns:
+            True if the condition is true, False otherwise
+            
+        Raises:
+            Exception: if the condition type is unknown
+        """
+        compare = self.compare_list[num]
+        compare_source = float(condition) if compare[1] == '_return' else float(self._get_value(ASTNode(('id', compare[1])), username))
+        compare_op = compare[2]
+        compare_target = float(self._get_value(ASTNode(compare[3]), username))
+        if compare_op == '<':
+            return compare_source < compare_target
+        elif compare_op == '>':
+            return compare_source > compare_target
+        elif compare_op == '<=':
+            return compare_source <= compare_target
+        elif compare_op == '>=':
+            return compare_source >= compare_target
+        else:
+            raise Exception("Unknown comparison operator")
+        
+    def update_return_value(self, value, username="Guest"):
+        """updates the return value
+            
+        Args:
+            value: value is the value to return
+            username: the username of the user
+        """
+        global db_lock, database
+        with db_lock:
+            store = Store(database)
+            user = store.find(UserVariableSet, UserVariableSet.username == username)
+            user.set(_return=value)
+            store.commit()
+            store.close()
+            
+    def register(self, username, passwd):
+        """registers a new user
+        
+        Args:
+            username: the username of the new user
+            passwd: the password of the new user
+            
+        Returns:
+            "Registered" if the user was registered successfully
+            
+        Raises:
+            Exception: if the user already exists
+        """
+        global database, db_lock
+        with db_lock:
+            store = Store(database)
+            if store.get(UserVariableSet, username) is not None:
+                store.close()
+                raise Exception("User already exists")
+            store.add(UserVariableSet(username, passwd))
+            store.commit()
+            store.close()
+        return True
+    
+    def login(self, username, passwd):
+        """logs in a user
+        
+        Args:
+            username: the username of the user
+            passwd: the password of the user
+            
+        Returns:
+            True if the user is logged in, Exception otherwise
+            
+        Exceptions:
+            Exception: if the user does not exist
+            Exception: if the password is incorrect
+        """
+        global database, db_lock
+        with db_lock:
+            store = Store(database)
+            user = store.get(UserVariableSet, username)
+            if user is None:
+                store.close()
+                raise Exception("User does not exist")
+            if user.passwd != passwd:
+                store.close()
+                raise Exception("Incorrect password")
+            store.close()
+        return True
+        
+    def _build_database(self, path):
         """builds the database of the state machine
         
         Args:
@@ -158,37 +283,6 @@ class StateMachine:
             store.add(UserVariableSet("Guest", ''))  # add a guest user
             store.commit()
             store.close()
-    
-            
-    def interpret(self):
-        """interprets the DSL code and builds the state machine transition table
-        
-        Raises:
-            Exception: if the DSL code is invalid
-        """
-        for declaration in self.AST.childs:
-            if declaration.type == 'variables':
-                for var in declaration.childs:
-                    self._interpret_variable(var.type)
-            elif declaration.type == 'states':
-                for state in declaration.childs:
-                    if self.debug:
-                        print(state)
-                    self.states_content.append(state)   # Save the states content in the list
-                    self.states_dict[state.type[1]] = {}    # create a dictionary for the state
-                if 'welcome' not in self.states_dict.keys():
-                    raise Exception("No welcome state found. A welcome state is required.")
-                self.states_dict[self.initial_state] = {} 
-                self.action_dict[self.initial_state] = {}   # create a action dictionary for the initial state
-                self.action_dict[self.initial_state]['<on_enter>'] = [CallBack(self._goto_action, 'welcome')]
-                if self.debug:
-                    for state in self.states_content:
-                        print(state.print())
-                        
-        for state in self.states_content: 
-            self.action_dict[state.type[1]] = {} # keys should be user events
-            self._interpret_state(state)
-    
 
     def _interpret_variable(self, var):
         """interprets a variable declaration and adds it to the variables dictionary
@@ -246,7 +340,7 @@ class StateMachine:
         for term in terms.childs:
             text += str(self._get_value(term, username))
         print(text)
-        return text
+        return text + '\n'
 
     def _goto_action(self, new_state):
         """performs the goto action
@@ -261,23 +355,8 @@ class StateMachine:
     def _exit_action(self):
         """performs the exit action"""
         if(self.debug): 
-            print("Exiting")
-        return 'exit'
-    
-    def update_return_value(self, value, username="Guest"):
-        """updates the return value
-            
-        Args:
-            value: value is the value to return
-            username: the username of the user
-        """
-        global db_lock, database
-        with db_lock:
-            store = Store(database)
-            user = store.find(UserVariableSet, UserVariableSet.username == username)
-            user.set(_return=value)
-            store.commit()
-            store.close()
+            print("Exiting...")
+        return 'Exiting...\n'
     
     def _update_action(self, id, calculation, username="Guest"):
         """performs the update action
@@ -371,84 +450,9 @@ class StateMachine:
             else:
                 self.action_dict[current_state][condition] = [action_func]
                 
-    def _register(self, username, passwd):
-        """registers a new user
-        
-        Args:
-            username: the username of the new user
-            passwd: the password of the new user
-            
-        Returns:
-            "Registered" if the user was registered successfully
-            
-        Raises:
-            Exception: if the user already exists
-        """
-        global database, db_lock
-        with db_lock:
-            store = Store(database)
-            if store.get(UserVariableSet, username) is not None:
-                store.close()
-                raise Exception("User already exists")
-            store.add(UserVariableSet(username, passwd))
-            store.commit()
-            store.close()
-        return True
+
     
-    def _login(self, username, passwd):
-        """logs in a user
-        
-        Args:
-            username: the username of the user
-            passwd: the password of the user
-            
-        Returns:
-            True if the user is logged in, Exception otherwise
-            
-        Exceptions:
-            Exception: if the user does not exist
-            Exception: if the password is incorrect
-        """
-        global database, db_lock
-        with db_lock:
-            store = Store(database)
-            user = store.get(UserVariableSet, username)
-            if user is None:
-                store.close()
-                raise Exception("User does not exist")
-            if user.passwd != passwd:
-                store.close()
-                raise Exception("Incorrect password")
-            store.close()
-        return True
     
-    def test(self, condition, num, username="Guest"):
-        """tests the condition
-        
-        Args:
-            condition: the condition to test
-            num: the entry to compare list
-            
-        Returns:
-            True if the condition is true, False otherwise
-            
-        Raises:
-            Exception: if the condition type is unknown
-        """
-        compare = self.compare_list[num]
-        compare_source = float(condition) if compare[1] == '_return' else float(self._get_value(ASTNode(('id', compare[1])), username))
-        compare_op = compare[2]
-        compare_target = float(self._get_value(ASTNode(compare[3]), username))
-        if compare_op == '<':
-            return compare_source < compare_target
-        elif compare_op == '>':
-            return compare_source > compare_target
-        elif compare_op == '<=':
-            return compare_source <= compare_target
-        elif compare_op == '>=':
-            return compare_source >= compare_target
-        else:
-            raise Exception("Unknown comparison operator")
         
         
 
@@ -463,7 +467,7 @@ if __name__ == "__main__":
     state_machine.interpret()
     print(state_machine)
 
-    state_machine.build_database("./database.db")
+    state_machine._build_database("./database.db")
     
     
     

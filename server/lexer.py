@@ -5,7 +5,6 @@ Typical usage example:
 lexer = Lexer()
 lexer.load_script(script)
 """
-from ast import keyword
 from ply.lex import lex
 
 
@@ -54,8 +53,10 @@ class Lexer:
 
     def __init__(self):
         """init the lexer
-            self._lexer is the lexer object
-            self._input is the input target
+        
+        Attributes:
+            _lexer: the lexer object
+            input: the input target
         """
         self._lexer = lex(module=self)
         self._input = None

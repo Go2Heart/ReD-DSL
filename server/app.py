@@ -11,43 +11,41 @@ It is responsible for the following:
 It uses RESTful API to communicate with the frontend.
 Every time the frontend sends a request to the backend, the backend will
 return a JSON object containing the corresponding fields.
+
+Copyright (c) 2022 Yibin Yan
 """
 
-import os
-import sys
 import jwt
-from flask import Flask, jsonify, request, abort
-from flask_cors import CORS, cross_origin
-from yacc import Parser, ASTNode
-from lexer import Lexer
-from interpreter import StateMachine, CallBack
-from controller import Controller
-import select
-import sys
+import json
+from flask import Flask, jsonify, request
+from flask_cors import cross_origin
+from server.yacc import Parser
+from server.lexer import Lexer
+from server.controller import Controller
 
 
 secret = "secret"
+port = 5000
 
 
 app = Flask(__name__)
 
-
-lexer = Lexer()
-parser = Parser(lexer, debug=False)
-with open("test.txt", "r") as f:
-    script = f.read()
-controller = Controller(lexer, parser, script, debug=True)
-controller.register("test", "test")
-input_string = ""
-
-
-@app.route("/")
-@cross_origin()
-def connect():
-    """this is the connection test"""
-    username = "test"
-    token = jwt.encode({"username": username}, secret, algorithm="HS256")
-    return jsonify({"username": username, "token": token}), 200
+try:
+    lexer = Lexer()
+    parser = Parser(lexer, debug=False)
+    config: dict = json.load(open("config.json", "r"))
+    secret = config["key"]
+    port = config["port"]
+    db_path = config["db_path"]
+    script_path = config["script_path"]
+    with open(script_path, "r") as f:
+        script = f.read()
+    controller = Controller(lexer, parser, script, db_path, debug=True)
+    controller.register("test", "test")
+    input_string = ""
+except SyntaxError as e:
+    print(e)
+    exit(1)
 
 
 @app.route("/send")
@@ -58,10 +56,10 @@ def send():
         Http GET Message: {"msg": "some message", "state": "current_state", "token": "some token"}
         
     Returns:
-        {"msg": "some message", "state": "next_state", "exit": "true/false"} and HTTP status code 200
+        {"msg": "some message", "state": "next_state", "timeout": "timeout_value", "exit": "True/False"} and HTTP status code 200
     
     Raises:    
-        if the token is invalid, return HTTP Error 401 with error message
+        if exception occurs, return HTTP Error 500 with error message
     """
     try:
         msg = request.args["msg"]
@@ -71,12 +69,12 @@ def send():
         if state is None or state == '':
             state = controller.state_machine.initial_state
 
-        next_state, output, timeout = controller.accept_condition(
+        next_state, output, timeout, exit = controller.accept_condition(
             state, msg, user["username"])
     except Exception as e:
         print(e)
-        return jsonify({"msg": "An exception has taken place, please try again!\n The error info:" + str(e) + '\n'}), 401
-    return jsonify({"msg": output, "next_state": next_state, "timeout": timeout}), 200
+        return jsonify({"msg": "An exception has taken place, please try again!\n The error info:" + str(e) + '\n'}), 500
+    return jsonify({"msg": output, "next_state": next_state, "timeout": timeout, "exit": exit}), 200
 
 
 @app.route("/register")
@@ -88,10 +86,10 @@ def register():
         Http GET Message:{"username" : "some username", "password": "some password"}
     
     Returns:
-        {"username": "some username", "token": "some token"}
+        {"token": "some token", "msg": "welcome message"} and HTTP status code 200
         
     Raises:
-        if the username is already taken, return HTTP Error 401 with error message
+        if the username is already taken, return HTTP Error 403 with error message
     """
     try:
         username = request.args["username"]
@@ -101,8 +99,8 @@ def register():
         msg = "Welcome to the game, " + username + "!"
     except Exception as e:
         print(e)
-        return jsonify({"msg": str(e)}), 401
-    return jsonify({"username": username, "token": token, "msg": msg}), 200
+        return jsonify({"msg": str(e)}), 403
+    return jsonify({"token": token, "msg": msg}), 200
 
 
 @app.route("/login")
@@ -114,7 +112,7 @@ def login():
         Http GET Message:{"username" : "some username", "password": "some password"}
         
     Returns:
-        {"username: "some username", "token": "some token"}
+        {"token": "some token", "msg": "welcome message"} and HTTP status code 200
         
     Raises:
         if the username or password is wrong, return 400 with error message
@@ -128,9 +126,9 @@ def login():
     except Exception as e:
         print(e)
         return jsonify({"msg": str(e)}), 400
-    return jsonify({"username": username, "token": token, "msg": msg}), 200
+    return jsonify({"token": token, "msg": msg}), 200
 
 
 if __name__ == "__main__":
     from waitress import serve
-    serve(app, host="0.0.0.0", port=9001)
+    serve(app, host="0.0.0.0", port=port)

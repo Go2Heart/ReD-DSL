@@ -10,9 +10,10 @@ controller = Controller(lexer, parser, script, debug=True)
 controller.register("test", "test")
 """
 
-from yacc import Parser, ASTNode
-from lexer import Lexer
-from interpreter import StateMachine, CallBack
+from server.yacc import Parser
+from server.lexer import Lexer
+from server.interpreter import StateMachine
+
 
 class Controller:
     """Controller class for the State machine, acts as the interface between the state machine and the user
@@ -29,18 +30,18 @@ class Controller:
         action_table: the action table of the state machine
         _return: the return value of the user
     """
-    def __init__(self, lexer:Lexer, paser:Parser, script, debug=False):
+
+    def __init__(self, lexer: Lexer, paser: Parser, script, db_path="./database.db", debug=False):
         """init the controller with the script"""
         self._lexer = lexer
         self._parser = paser
         self.debug = debug
         self.state_machine = StateMachine(self._parser.parse(script), debug=debug)
         self.state_machine.interpret()
-        self.state_machine.build_database("./database.db")
         self.action_table = self.state_machine.action_dict
         self._return = ""
-        
-    def register(self, username:str, password:str):
+
+    def register(self, username: str, password: str):
         """register a new user
         
         Args:
@@ -53,13 +54,13 @@ class Controller:
         Raises:
             Exception: if the user is already registered
         """
-        try : 
-            self.state_machine._register(username, password)
+        try:
+            self.state_machine.register(username, password)
         except Exception as e:
             raise e
         return True
-    
-    def login(self, username:str, password:str):
+
+    def login(self, username: str, password: str):
         """login a user
         
         Args:
@@ -73,12 +74,12 @@ class Controller:
             Exception: if the user is not registered or the password is wrong
         """
         try:
-            self.state_machine._login(username, password)
+            self.state_machine.login(username, password)
         except Exception as e:
             raise e
         return True
-    
-    def accept_condition(self, current_state:str, condition:str, username="Guest"):
+
+    def accept_condition(self, current_state: str, condition: str, username="Guest"):
         """accepts a condition, peforms the required action and returns the next state, output and timeout
         
         The controller will check the database of the state machine to perform the required action if there is any.
@@ -99,13 +100,15 @@ class Controller:
             Exception: if the current state is not in the state machine
             Exception: if the condition is not in the state machine
         """
-        next_state = current_state 
+        next_state = current_state
         output = ""
         is_transferred = False
+        is_exit = False
         self._return = condition
         self.state_machine.update_return_value(condition, username)
-        if condition not in self.action_table[current_state].keys():  # deal with the corresponding action of the condition and current_state
-            if '_return' in self.action_table[current_state].keys():    # if there is a return condition
+        if condition not in self.action_table[
+            current_state].keys():  # deal with the corresponding action of the condition and current_state
+            if '_return' in self.action_table[current_state].keys():  # if there is a return condition
                 for action in self.action_table[current_state]['_return']:
                     if action.type == "goto":
                         next_state = action()
@@ -113,14 +116,14 @@ class Controller:
                         break
                     elif action.type == "speak":
                         output += action(username)
-                        output += "\n"
                     elif action.type == "exit":
-                        action()
+                        output += action()
+                        is_exit = True
                     elif action.type == "update":
-                        action(username) 
+                        action(username)
                     else:
                         raise Exception("Invalid action")
-            elif '<default>' in self.action_table[current_state].keys():    # if there is a default condition
+            elif '<default>' in self.action_table[current_state].keys():  # if there is a default condition
                 # perform the default action
                 for action in self.action_table[current_state]["<default>"]:
                     if action.type == "goto":
@@ -129,16 +132,17 @@ class Controller:
                         break
                     elif action.type == "speak":
                         output += action(username)
-                        output += "\n"
                     elif action.type == "exit":
-                        action()
+                        output += action()
+                        is_exit = True
                     elif action.type == "update":
                         action(username)
                     else:
                         raise Exception("Invalid action")
             else:
                 for key in self.action_table[current_state].keys():
-                    if isinstance(key, tuple) and self.state_machine.test(condition, key[1], username):      # it's a compare condition and it's true
+                    if isinstance(key, tuple) and self.state_machine.test(condition, key[1],
+                                                                          username):  # it's a compare condition and it's true
                         for action in self.action_table[current_state][key]:
                             if action.type == "goto":
                                 next_state = action()
@@ -146,13 +150,13 @@ class Controller:
                                 break
                             elif action.type == "speak":
                                 output += action(username)
-                                output += "\n"
                             elif action.type == "exit":
-                                action()
+                                output += action()
+                                is_exit = True
                             elif action.type == "update":
                                 action(username)
                             else:
-                                raise Exception("Invalid action")   
+                                raise Exception("Invalid action")
                         break
         else:
             for action in self.action_table[current_state][condition]:
@@ -162,32 +166,26 @@ class Controller:
                     break
                 elif action.type == "speak":
                     output += action(username)
-                    output += "\n"
                 elif action.type == "exit":
-                    action()
+                    output += action()
+                    is_exit = True
                 elif action.type == "update":
                     action(username)
                 else:
                     raise Exception("Invalid action")
-                
+
         if is_transferred:
             for action in self.action_table[next_state]["<on_enter>"]:
                 if action.type == "goto":
                     next_state = action()
                 elif action.type == "speak":
                     output += action(username)
-                    output += "\n"
                 elif action.type == "exit":
                     action()
+                    is_exit = True
                 elif action.type == "update":
                     action(username)
                 else:
                     raise Exception("Invalid action")
         timeout = self.state_machine.action_dict[next_state].get("<timeout_value>", 999)
-        return next_state, output, int(timeout)
-    
-    
-                    
-        
-        
-        
+        return next_state, output, int(timeout), is_exit
