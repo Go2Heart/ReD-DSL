@@ -1,6 +1,6 @@
 {
   "key": "secret",
   "db_path": "database.db",
-  "script_path": "./test/script/test1.txt",
+  "script_path": "script/bank_service.txt",
   "port": 9001
 }
