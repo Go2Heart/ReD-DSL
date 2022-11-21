@@ -2,12 +2,12 @@
 
 Copyright (c) 2022 Yibin Yan
 """
-import sys
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from server.yacc import Parser
 from server.lexer import Lexer
 from server.controller import Controller
 import select
-
 
 
 def input_with_timeout(prompt, timeout):
@@ -32,27 +32,21 @@ def input_with_timeout(prompt, timeout):
     raise TimeoutError
 
 
-def test_input(current_state):
-    """ test input function using threading"""
-    input_string = input()
-    current_state = controller.accept_condition(current_state, input_string, "test")
-
-
 if __name__ == "__main__":
     lexer = Lexer()
     parser = Parser(lexer, debug=False)
-    with open("test.txt", "r") as f:
+    with open("./test/script/test1.txt", "r") as f:
         script = f.read()
     controller = Controller(lexer, parser, script, debug=True)
     controller.register("test", "test")
     input_string = ""
     current_state = controller.state_machine.initial_state
-    current_state,output, timeout, exit = controller.accept_condition(current_state, "<on_enter>", "test")
-    while (exit == False):
+    current_state, output, timeout, exit = controller.accept_condition(current_state, "<on_enter>", "test")
+    while exit == False:
         try:
             condition = input_with_timeout(None, timeout)
-            current_state,output, timeout, exit = controller.accept_condition(
+            current_state, output, timeout, exit = controller.accept_condition(
                 current_state, condition, "test")
         except TimeoutError:
-            current_state,output, timeout, exit = controller.accept_condition(
+            current_state, output, timeout, exit = controller.accept_condition(
                 current_state, "<on_timeout>", "test")

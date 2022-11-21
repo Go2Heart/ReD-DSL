@@ -1,0 +1,1 @@
+{'<mono_begin>': {'<on_enter>': [CallBack(_goto_action, ('welcome',))]}, 'welcome': {'go': [CallBack(_goto_action, ('goodbye',))]}, 'goodbye': {'<on_enter>': [CallBack(_speak_action, (terms(('id', 'x')),))]}}

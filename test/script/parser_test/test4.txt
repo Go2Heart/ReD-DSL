@@ -1,0 +1,10 @@
+script wrong_script2
+
+variable 
+    x integer $5
+    y integer $6
+    z integer $7
+
+state welcome
+    speak "Welcome to the script!"
+endState

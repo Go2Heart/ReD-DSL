@@ -4,6 +4,8 @@ Typical usage example:
 parser = Parser(lexer)
 parser.parse(script)
 """
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ply.yacc import yacc
 from server.lexer import Lexer
 
@@ -25,6 +27,13 @@ class ASTNode:
     def __str__(self):
         """return the string representation of the AST"""
         return str(self.type)
+    
+    def __repr__(self):
+        """return the string representation of the AST"""
+        if self.childs:
+            return str(self.type) + "(" + ", ".join([repr(child) for child in self.childs]) + ")"
+        else:
+            return str(self.type)
 
     def print(self, indent=1):
         """print the AST
@@ -53,7 +62,7 @@ class Parser:
         """init the parser"""
         self._lexer = lexer
         self.tokens = lexer.tokens
-        self._yacc = yacc(module=self, debug=True)
+        self._yacc = yacc(module=self, debug=debug)
         self.debug = debug
 
     def parse(self, script):
@@ -65,7 +74,7 @@ class Parser:
         Returns:
             the AST of the script
         """
-        return self._yacc.parse(script, self._lexer.getLexer())
+        return self._yacc.parse(script, self._lexer.get_lexer())
 
     start = 'script'
 
@@ -261,16 +270,18 @@ class Parser:
         p[0] = ASTNode('exit')
 
     def p_error(self, p):
-        print("Syntax error in input!")
-        print(p)
+        if self.debug:
+            print("Syntax error in input!")
+            print(p)
         raise SyntaxError
 
 
 if __name__ == '__main__':
     lexer = Lexer()
-    parser = Parser(lexer, debug=False)
-    with open('test2.txt') as f:
+    parser = Parser(lexer, debug=True)
+    with open('script/bank_service.txt') as f:
         script = f.read()
 
     node = parser.parse(script)
-    node.print()
+    print(repr(node))
+    #node.print()

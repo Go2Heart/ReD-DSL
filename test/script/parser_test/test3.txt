@@ -1,0 +1,6 @@
+script wrong_script
+
+state welcome
+    speak "this is a wrong script"
+    default speak "this is the wrong line"
+end state

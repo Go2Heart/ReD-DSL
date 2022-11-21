@@ -6,7 +6,8 @@ lexer = Lexer()
 lexer.load_script(script)
 """
 from ply.lex import lex
-
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class Lexer:
     """Lexer is for tokenizing the input script
@@ -61,7 +62,7 @@ class Lexer:
         self._lexer = lex(module=self)
         self._input = None
 
-    def getLexer(self):
+    def get_lexer(self):
         """get the lexer object"""
         return self._lexer
 
@@ -120,13 +121,14 @@ class Lexer:
         return t
 
     def t_error(self, t):
-        raise SyntaxError(f'Illegal character {t.value[0]}')
         t.lexer.skip(1)
+        raise SyntaxError(f'Illegal character {t.value[0]}')
+
 
 
 if __name__ == "__main__":
     lexer = Lexer()
-    lexer.load_script("test.txt")
+    lexer.load_script("script/bank_service.txt")
     token = lexer.token()
     while token:
         print(token)

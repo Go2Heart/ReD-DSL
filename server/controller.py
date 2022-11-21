@@ -9,7 +9,8 @@ Typical usage example:
 controller = Controller(lexer, parser, script, debug=True)
 controller.register("test", "test")
 """
-
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from server.yacc import Parser
 from server.lexer import Lexer
 from server.interpreter import StateMachine
@@ -36,7 +37,7 @@ class Controller:
         self._lexer = lexer
         self._parser = paser
         self.debug = debug
-        self.state_machine = StateMachine(self._parser.parse(script), debug=debug)
+        self.state_machine = StateMachine(self._parser.parse(script),db_path, debug=debug)
         self.state_machine.interpret()
         self.action_table = self.state_machine.action_dict
         self._return = ""
@@ -95,6 +96,7 @@ class Controller:
             next_state: the next state of the user
             output: the output of the state machine
             timeout: the timeout of the state machine
+            is_exit: whether the state machine is exited
             
         Raises:
             Exception: if the current state is not in the state machine
@@ -142,7 +144,8 @@ class Controller:
             else:
                 for key in self.action_table[current_state].keys():
                     if isinstance(key, tuple) and self.state_machine.test(condition, key[1],
-                                                                          username):  # it's a compare condition and it's true
+                                                                          username):  # it's a compare condition and
+                        # it's true
                         for action in self.action_table[current_state][key]:
                             if action.type == "goto":
                                 next_state = action()
@@ -189,3 +192,14 @@ class Controller:
                     raise Exception("Invalid action")
         timeout = self.state_machine.action_dict[next_state].get("<timeout_value>", 999)
         return next_state, output, int(timeout), is_exit
+
+
+
+if __name__ == "__main__":
+    lexer = Lexer()
+    parser = Parser(lexer)
+    with open( "./script/bank_service.txt", "r") as f:
+        script = f.read()
+    controller = Controller(lexer, parser, script, debug=True)
+    print(controller.state_machine.action_dict)
+    

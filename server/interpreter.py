@@ -32,7 +32,8 @@ user_variable_set = UserVariableSet()
 setattr(user_variable_set, "username", "Guest")
     
 """
-import os
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from server.yacc import Parser, ASTNode
 from server.lexer import Lexer
 from storm.locals import create_database, Store
@@ -92,7 +93,7 @@ class CallBack(object):
     
     def __repr__(self) -> str:
         """returns the string representation of the CallBack object"""
-        return f"CallBack({self.callback.__name__}, {self.args})\n"
+        return f"CallBack({self.callback.__name__}, {self.args})"
 class StateMachine:
     """This class creates a state machine transition table
     
@@ -283,6 +284,14 @@ class StateMachine:
             store.add(UserVariableSet("Guest", ''))  # add a guest user
             store.commit()
             store.close()
+    
+    def get_database(self):
+        """gets the database
+        
+        Returns:
+            the database
+        """
+        return database
 
     def _interpret_variable(self, var):
         """interprets a variable declaration and adds it to the variables dictionary
@@ -460,7 +469,7 @@ class StateMachine:
 if __name__ == "__main__":
     lexer = Lexer()
     parser = Parser(lexer, debug=False)
-    with open("test.txt", "r") as f:
+    with open("script/bank_service.txt", "r") as f:
         script = f.read()
     ASTNode = parser.parse(script)
     state_machine = StateMachine(ASTNode, debug=True)

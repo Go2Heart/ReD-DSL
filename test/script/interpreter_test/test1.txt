@@ -1,0 +1,16 @@
+script Test
+
+variable
+    x text "exit"
+endVariable
+
+state welcome
+    switch  
+        case "go"
+            goto goodbye
+    endSwitch
+endState
+
+state goodbye
+    speak x
+endState
