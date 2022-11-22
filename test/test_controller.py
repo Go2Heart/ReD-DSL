@@ -6,6 +6,16 @@ from server.controller import Controller
 from server.interpreter import *
 
 class TestController(unittest.TestCase):
+    """Test the controller with a more complex script
+    
+    Use the script in script/controller_test/test1.txt, which a copy of bank service script.
+    Test the controller login, register, accept_condition, and compare function.
+    
+    Arttibutes:
+        lexer (Lexer): Lexer object
+        parser (Parser): Parser object
+        controller (Controller): Controller object
+    """
     def setUp(self):
         self.lexer = Lexer()
         self.parser = Parser(self.lexer)

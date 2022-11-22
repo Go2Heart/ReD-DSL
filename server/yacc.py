@@ -16,17 +16,22 @@ class ASTNode:
     Attributes:
         type: the type of the node
         childs: the child nodes
-        
     """
 
     def __init__(self, type, *child):
-        """init the AST node"""
+        """init the AST node
+        
+        Args:
+            type: the type of the node
+            childs: the child nodes
+        """
         self.type = type
         self.childs = list(child)
 
     def __str__(self):
         """return the string representation of the AST"""
-        return str(self.type)
+        if self != None:
+            return str(self.type)
     
     def __repr__(self):
         """return the string representation of the AST"""
@@ -34,7 +39,7 @@ class ASTNode:
             return str(self.type) + "(" + ", ".join([repr(child) for child in self.childs]) + ")"
         else:
             return str(self.type)
-
+    
     def print(self, indent=1):
         """print the AST
         
@@ -55,7 +60,6 @@ class Parser:
         tokens: the tokens
         _yacc: the yacc parser
         debug: the debug mode
-        
     """
 
     def __init__(self, lexer: Lexer, debug=False):
@@ -73,6 +77,9 @@ class Parser:
             
         Returns:
             the AST of the script
+            
+        Raises:
+            SyntaxError: if the script is not valid
         """
         return self._yacc.parse(script, self._lexer.get_lexer())
 
@@ -281,7 +288,6 @@ if __name__ == '__main__':
     parser = Parser(lexer, debug=True)
     with open('script/bank_service.txt') as f:
         script = f.read()
-
-    node = parser.parse(script)
+    node = parser.parse(script)   
     print(repr(node))
-    #node.print()
+    node.print()

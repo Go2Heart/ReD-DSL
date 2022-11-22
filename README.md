@@ -237,7 +237,7 @@ python app.py
 启动客户端：
 
 ```bash
-cd ../client/src
+cd ../client
 yarn start
 ```
 

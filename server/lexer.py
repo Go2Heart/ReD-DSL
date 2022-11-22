@@ -63,7 +63,11 @@ class Lexer:
         self._input = None
 
     def get_lexer(self):
-        """get the lexer object"""
+        """get the lexer object
+        
+        Returns:
+            the lexer object
+        """
         return self._lexer
 
     def load_str(self, input):
@@ -92,7 +96,15 @@ class Lexer:
         self._lexer.lineno = 1
 
     def token(self):
-        """get the next token"""
+        """get the next token
+        
+        Returns:
+            the next token tokenized
+            
+        Raises:
+            SyntaxError: if the input is illegal
+            RuntimeError: if the input is not loaded
+        """
         if not self._input:
             raise RuntimeError('reading token before load.')
         return self._lexer.token()

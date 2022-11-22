@@ -34,8 +34,8 @@ setattr(user_variable_set, "username", "Guest")
 """
 import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from server.yacc import Parser, ASTNode
-from server.lexer import Lexer
+import pickle
+from server.yacc import  ASTNode
 from storm.locals import create_database, Store
 from storm.properties import Unicode, Int, Float
 from threading import Lock
@@ -53,7 +53,14 @@ class UserVariableSet(object):
     passwd = Unicode()
 
     def __init__(self, username: str, passwd: str):
-        """Inits UserVariableSet with username and passwd"""
+        """Inits UserVariableSet with username and passwd
+        
+        Note that other attributes can be added dynamically
+        
+        Args:
+            username: the username of the user
+            passwd: the password of the user
+        """
         self.username = username
         self.passwd = passwd
 
@@ -114,7 +121,13 @@ class StateMachine:
         db_path (str): the path of the database
     """
     def __init__(self, AST : ASTNode, db_path="./database.db",debug=False):
-        """Inits StateMachine with AST and debug"""
+        """Inits StateMachine with AST and debug
+        
+        Args:
+            AST (ASTNode): the abstract syntax tree of the DSL code
+            db_path (str): the path of the database
+            debug (bool): the debug mode
+        """
         self.AST = AST
         self.states_dict = dict()
         self.states_content = []
@@ -467,16 +480,12 @@ class StateMachine:
 
                     
 if __name__ == "__main__":
-    lexer = Lexer()
-    parser = Parser(lexer, debug=False)
-    with open("script/bank_service.txt", "r") as f:
-        script = f.read()
-    ASTNode = parser.parse(script)
-    state_machine = StateMachine(ASTNode, debug=True)
+    with open("test/stub/ast.stub", "rb") as f:
+        ast = pickle.load(f)
+    state_machine = StateMachine(ast,db_path="server/database.db", debug=True)
     state_machine.interpret()
     print(state_machine)
 
-    state_machine._build_database("./database.db")
     
     
     

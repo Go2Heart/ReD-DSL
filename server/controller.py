@@ -11,6 +11,7 @@ controller.register("test", "test")
 """
 import sys,os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import pickle
 from server.yacc import Parser
 from server.lexer import Lexer
 from server.interpreter import StateMachine
@@ -24,7 +25,7 @@ class Controller:
     User query with the current state of the user to get the next state and the output as well as the timeout value.
     
     Attributes:
-        _lexer: the lexer used to parse the script
+        _lexer: the lexer used to tokenize the script
         _parser: the parser used to parse the script
         debug: the debug mode
         state_machine: the state machine
@@ -32,16 +33,28 @@ class Controller:
         _return: the return value of the user
     """
 
-    def __init__(self, lexer: Lexer, paser: Parser, script, db_path="./database.db", debug=False):
-        """init the controller with the script"""
-        self._lexer = lexer
-        self._parser = paser
-        self.debug = debug
-        self.state_machine = StateMachine(self._parser.parse(script),db_path, debug=debug)
-        self.state_machine.interpret()
-        self.action_table = self.state_machine.action_dict
-        self._return = ""
-
+    def __init__(self, lexer: Lexer, paser: Parser, script, db_path="./database.db", debug=False, stub=False):
+        """init the controller with the script
+        
+        Args:
+            lexer: the lexer used to tokenize the script
+            parser: the parser used to parse the script
+            script: the script of the state machine
+            db_path: the path of the database
+            debug: the debug mode
+            stub: the stub mode
+        """
+        if stub:
+            pass
+        else:
+            self._lexer = lexer
+            self._parser = paser
+            self.debug = debug
+            self.state_machine = StateMachine(self._parser.parse(script),db_path, debug=debug)
+            self.state_machine.interpret()
+            self.action_table = self.state_machine.action_dict
+            self._return = ""
+    
     def register(self, username: str, password: str):
         """register a new user
         
@@ -196,10 +209,9 @@ class Controller:
 
 
 if __name__ == "__main__":
-    lexer = Lexer()
-    parser = Parser(lexer)
-    with open( "./script/bank_service.txt", "r") as f:
-        script = f.read()
-    controller = Controller(lexer, parser, script, debug=True)
+    controller = Controller(None,None,None,stub=True)
+    state_machine = pickle.load(open("test/stub/state_machine.stub", "rb"))
+    controller.state_machine = state_machine
+    controller.state_machine.interpret()
     print(controller.state_machine.action_dict)
     

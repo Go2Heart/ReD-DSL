@@ -1,0 +1,5 @@
+Hello, welcome to the test script
+Input [balance] to check your account's balance
+Input [topup] to top up your account
+Input [withdraw] to withdraw money from your account
+Input [exit] to exit the script

@@ -35,9 +35,9 @@ def input_with_timeout(prompt, timeout):
 if __name__ == "__main__":
     lexer = Lexer()
     parser = Parser(lexer, debug=False)
-    with open("./test/script/test1.txt", "r") as f:
+    with open("test/script/test.txt", "r") as f:
         script = f.read()
-    controller = Controller(lexer, parser, script, debug=True)
+    controller = Controller(lexer, parser, script, db_path="./test/test_server.db", debug=True)
     controller.register("test", "test")
     input_string = ""
     current_state = controller.state_machine.initial_state

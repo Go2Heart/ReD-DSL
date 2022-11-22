@@ -14,6 +14,8 @@ return a JSON object containing the corresponding fields.
 
 Copyright (c) 2022 Yibin Yan
 """
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import jwt
 import json
@@ -40,7 +42,7 @@ try:
     script_path = config["script_path"]
     with open(script_path, "r") as f:
         script = f.read()
-    controller = Controller(lexer, parser, script, db_path, debug=True)
+    controller = Controller(lexer, parser, script, db_path, debug=False)
     controller.register("test", "test")
     input_string = ""
 except SyntaxError as e:
