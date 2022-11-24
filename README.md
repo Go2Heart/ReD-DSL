@@ -241,5 +241,66 @@ cd ../client
 yarn start
 ```
 
+<div style="page-break-after:always"></div>
 
+## 文件结构
+
+```c
+.
+├── README.md //ReD-DSL用户手册
+├── client //客户端文件夹
+│   ├── README.md //客户端用户手册
+│ 	│   ...
+│   └── yarn.lock
+├── config.json //ReD-DSL配置文件
+├── script //可运行的脚本
+│   ├── bank_service.txt //银行服务脚本
+│   ├── echo.txt //echo脚本
+│   ├── hello.txt //hello脚本
+│   └── mobile_fee.txt //移动设备流量充值查询脚本
+├── server //服务端文件夹
+│   ├── __init__.py //python init标识
+│   ├── app.py //后端flask API
+│   ├── controller.py //控制器
+│   ├── database.db	//默认数据库
+│   ├── interpreter.py //解释器
+│   ├── lexer.py //词法分析器
+│   ├── parser.out //LALR1分析结果
+│   ├── parsetab.py //ply中间文件
+│   └── yacc.py //语法分析器
+└── test //测试文件夹
+    ├── __init__.py //python init标识
+    ├── script //测试脚本
+    │   ├── app_test //测试api
+    │   │   ├── output1.txt
+    │   │   ├── output2.txt
+    │   │   └── output3.txt
+    │   ├── controller_test //测试控制器
+    │   │   ├── output1.txt
+    │   │   ├── result1.txt
+    │   │   └── test1.txt
+    │   ├── interpreter_test //测试解释器
+    │   │   ├── result1.txt
+    │   │   ├── result2.txt
+    │   │   ├── test1.txt
+    │   │   └── test2.txt
+    │   ├── parser_test //测试语法分析器
+    │   │   ├── result1.txt
+    │   │   ├── result2.txt
+    │   │   ├── test1.txt
+    │   │   ├── test2.txt
+    │   │   ├── test3.txt
+    │   │   └── test4.txt
+    │   └── test.txt
+    ├── stub //测试桩文件
+    │   ├── ast.stub //语法树测试桩文件
+    │   └── state_machine.stub //状态机测试桩文件
+    ├── test_app.py //后端API自动测试脚本
+    ├── test_client.py //测试客户端的测试桩
+    ├── test_controller.py //控制器自动测试脚本
+    ├── test_parser.py //语法分析器自动测试脚本
+    ├── test_pressure.py //压力测试测试脚本
+    ├── test_server.py //测试服务端的测试桩
+    └── test_state_machine.py //状态机自动测试脚本
+```
 
