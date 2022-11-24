@@ -1,16 +1,14 @@
-script Test2
+script Echo
 variable
-    name text "Guest"
+    name text "Friend"
 endVariable
 
 state welcome
     speak "Welcome, " + name + "!"
-    speak "Please Input [exit] to exit."
+    speak "This is a test for echo."
     switch
-        case "exit"
-            exit
-        default
-            speak "I didn't understand that."
+        case _return
+            speak _return
     endSwitch
     timeout $30
         speak "No Respond in 30 seconds, exit."

@@ -286,7 +286,7 @@ class Parser:
 if __name__ == '__main__':
     lexer = Lexer()
     parser = Parser(lexer, debug=True)
-    with open('script/bank_service.txt') as f:
+    with open('script/mobile_fee.txt') as f:
         script = f.read()
     node = parser.parse(script)   
     print(repr(node))

@@ -1,0 +1,93 @@
+script mobile_fee
+variable
+    remain_package real $10000
+    balance real $100
+    fee real $0
+endVariable
+
+state welcome
+    speak "Welcome to the mobile fee consultation service."
+    speak "Input [1] to check your remaining package."
+    speak "Input [2] to check your balance."
+    speak "Input [3] to charge your balance."
+    switch 
+        case "1"
+            goto remain_package
+        case "2"
+            goto balance
+        case "3"
+            goto charge
+        default
+            speak "Invalid input."
+            speak "Please input [1] or [2] or [3]."
+            goto welcome
+    endSwitch
+    
+    timeout $30
+        speak "Timeout."
+        goto welcome
+    endTimeout
+endState
+
+state remain_package
+    speak "Your remaining package is" + remain_package + "MB."
+    speak "Input [1] to check your balance."
+    speak "Input [2] to charge your mobile package."
+    switch
+        case "1"
+            goto balance
+        case "2"
+            goto charge
+        default
+            speak "Invalid input."
+            speak "Please input [1] or [2]."
+            goto remain_package
+    endSwitch
+    timeout $30
+        speak "Timeout."
+        goto welcome
+    endTimeout
+endState
+
+state balance
+    speak "Your balance is" + balance + "RMB."
+    speak "Input [1] to check your remaining package."
+    speak "Input [2] to charge your mobile package."
+    switch
+        case "1"
+            goto remain_package
+        case "2"
+            goto charge
+        default
+            speak "Invalid input."
+            speak "Please input [1] or [2]."
+            goto balance
+    endSwitch
+    timeout $30
+        speak "Timeout."
+        goto welcome
+    endTimeout
+endState
+
+state charge
+    speak "Input the amount of money you want to charge."
+    speak "The price of 1 MB is 0.5 RMB."
+    switch
+        case _return > balance
+            speak "Your balance is not enough."
+            goto charge
+        case _return <= balance
+            update fee = _return
+            update remain_package = remain_package PLUS fee
+            update remain_package = remain_package PLUS fee
+            update balance = balance MINUS _return
+            speak "Your balance is" + balance + "RMB."
+            speak "Your remaining package is" + remain_package + "MB."
+            goto welcome
+        
+    endSwitch
+    timeout $30
+        speak "Timeout."
+        goto welcome
+    endTimeout
+endState

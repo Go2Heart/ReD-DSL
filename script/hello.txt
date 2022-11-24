@@ -1,0 +1,19 @@
+script Hello
+variable
+    name text "Guest"
+endVariable
+
+state welcome
+    speak "Welcome, " + name + "!"
+    speak "Please Input [exit] to exit."
+    switch
+        case "exit"
+            exit
+        default
+            speak "I didn't understand that."
+    endSwitch
+    timeout $30
+        speak "No Respond in 30 seconds, exit."
+        exit
+    endTimeout  
+endState

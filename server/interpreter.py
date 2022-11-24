@@ -408,7 +408,14 @@ class StateMachine:
                 store.find(UserVariableSet, UserVariableSet.username == username).set(**{id:result})
                 store.commit()
                 store.close()
-        else:
+        elif calculation.type == 'terms':
+                result = float(self._get_value(calculation.childs[0], username))
+                with db_lock:
+                    store = Store(database)
+                    store.find(UserVariableSet, UserVariableSet.username == username).set(**{id:result})
+                    store.commit()
+                    store.close()
+        else:   
             raise Exception("Unknown manipulation type")
     
     def _get_value(self, term, username):
