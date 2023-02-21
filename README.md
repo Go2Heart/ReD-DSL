@@ -75,7 +75,7 @@ ReD-DSL主要有以下几个特点：
 * ReD-DSL支持多用户多并发处理，使用ORM的方式进行不同用户的数据管理，并且保证了线程的安全。
 * ReD-DSL的演示程序中支持调用一个基于深度学习的自然语言预训练模型([ blenderbot-400M-distill](https://huggingface.co/facebook/blenderbot-400M-distill))，从而使得用户可以与机器人进行任意自然语言的交流，从而优化了程序的人机接口。
 
-<img src="./README.assets/%E7%A7%BB%E5%8A%A8%E7%AB%AF.gif" alt="移动端" style="zoom:50%;" />
+<img src="./README.assets/移动端.gif" alt="移动端" style="zoom:50%;" />
 
 <div style="page-break-after:always"></div>
 
